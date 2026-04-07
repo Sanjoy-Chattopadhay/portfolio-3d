@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sanjoy Chattopadhyay | 3D Portfolio</title>
+    <meta
+      name="description"
+      content="3D portfolio of Sanjoy Chattopadhyay featuring GitHub-driven projects, real-world use cases, blog notes, books, and interview learnings."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Syne:wght@500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="bg-orb orb-one"></div>
+    <div class="bg-orb orb-two"></div>
+    <div class="grid-overlay"></div>
+
+    <header class="site-header">
+      <a class="brand" href="#top">SC</a>
+      <nav class="nav">
+        <a href="#about">About</a>
+        <a href="#projects">Projects</a>
+        <a href="#blogs">Blogs</a>
+        <a href="#books">Books</a>
+        <a href="#interview">Interview</a>
+        <a href="#connect">Connect</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero reveal">
+        <div class="hero-copy">
+          <p class="eyebrow">Engineer + Builder + Mentor</p>
+          <h1>Building real-world AI systems, not just demos.</h1>
+          <p>
+            I am <strong>Sanjoy Chattopadhyay</strong>. I work on <strong>LangChain, LangGraph,
+            MCP agents, RAG systems, and backend engineering</strong> to solve practical problems.
+            This portfolio is upgraded with a stronger 3D UI and project data picked from my GitHub profile.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="https://github.com/Sanjoy-Chattopadhay" target="_blank" rel="noreferrer">GitHub</a>
+            <a class="button" href="https://www.linkedin.com/in/sanjoy-chattopadhyay-390b3a1a6/" target="_blank" rel="noreferrer">LinkedIn</a>
+            <a class="button" href="Gen_AI.pdf" target="_blank" rel="noreferrer">Resume</a>
+          </div>
+        </div>
+        <div class="hero-card" data-tilt>
+          <img src="https://avatars.githubusercontent.com/u/64368749?v=4" alt="Sanjoy Chattopadhyay" />
+          <div class="chip">LLM Apps</div>
+          <div class="chip">Multi-Agent</div>
+          <div class="chip">Production Thinking</div>
+        </div>
+      </section>
+
+      <section id="about" class="section reveal">
+        <h2>How I think about problem solving</h2>
+        <div class="cards two-col">
+          <article class="card">
+            <h3>Motivation first, tools second</h3>
+            <p>
+              Every project starts with one question: what real friction am I reducing? Then I choose
+              architecture, stack, and model strategy around measurable impact.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Coding mindset changed</h3>
+            <p>
+              LangChain, LangGraph, and MCP agents changed my coding dynamics from writing single scripts
+              to designing collaborating systems with memory, tools, and reliable workflows.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section id="projects" class="section reveal">
+        <div class="section-head">
+          <h2>Projects from GitHub with stack + use cases</h2>
+          <p>Loaded from public GitHub metadata and enriched with real-life problem context.</p>
+        </div>
+        <div id="projects-grid" class="cards project-grid"></div>
+      </section>
+
+      <section id="blogs" class="section reveal">
+        <div class="section-head">
+          <h2>Blogs: getting started with real-life problems</h2>
+        </div>
+        <div class="cards three-col">
+          <article class="card">
+            <h3>How to Start Solving a Real-Life Problem</h3>
+            <p>
+              Start with observation, not code. Write down repeated pain points, estimate who is affected,
+              then build the smallest tool that saves time today.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Finding Motivation That Lasts</h3>
+            <p>
+              Motivation improves when your project has a user, a deadline, and visible progress.
+              Build in public, collect feedback, and track impact metrics weekly.
+            </p>
+          </article>
+          <article class="card">
+            <h3>How Agentic AI Changed Coding</h3>
+            <p>
+              Moving from linear scripts to agent graphs changed how I design software:
+              context management, tool orchestration, safety checks, and auditability now matter as much as model choice.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section id="books" class="section reveal">
+        <div class="section-head">
+          <h2>Favorite books that shape my thinking</h2>
+        </div>
+        <div class="cards two-col">
+          <article class="card">
+            <h3>Deep Work</h3>
+            <p>Focus and craftsmanship mindset for hard technical work.</p>
+            <a href="https://www.calnewport.com/books/deep-work/" target="_blank" rel="noreferrer">Book link</a>
+          </article>
+          <article class="card">
+            <h3>Atomic Habits</h3>
+            <p>Systems for consistency, useful for coding and interview preparation.</p>
+            <a href="https://jamesclear.com/atomic-habits" target="_blank" rel="noreferrer">Book link</a>
+          </article>
+          <article class="card">
+            <h3>Designing Data-Intensive Applications</h3>
+            <p>Strong foundations for scalable and reliable engineering decisions.</p>
+            <a href="https://dataintensive.net/" target="_blank" rel="noreferrer">Book link</a>
+          </article>
+          <article class="card">
+            <h3>Grokking Algorithms</h3>
+            <p>Visual intuition for algorithmic thinking and interview confidence.</p>
+            <a href="https://www.manning.com/books/grokking-algorithms" target="_blank" rel="noreferrer">Book link</a>
+          </article>
+        </div>
+      </section>
+
+      <section id="interview" class="section reveal">
+        <div class="section-head">
+          <h2>MathWorks interview experience: why I did not clear</h2>
+        </div>
+        <article class="card full">
+          <p>
+            My MathWorks experience taught me that understanding concepts is not enough; speed, communication,
+            and clarity under pressure are equally important. I missed consistency in translating thought process
+            into concise answers, and I under-invested in timed practice for edge-case heavy DSA rounds.
+          </p>
+          <p>
+            What changed after that: I now run weekly mock interviews, explain solutions out loud, revise core CS
+            fundamentals with short notes, and benchmark progress using timed question sets.
+          </p>
+        </article>
+      </section>
+
+      <section id="connect" class="section reveal">
+        <div class="cards two-col">
+          <article class="card">
+            <h3>Connect</h3>
+            <p>Open for internships, collaborations, and AI/backend problem-solving work.</p>
+          </article>
+          <article class="card links">
+            <a href="mailto:chattopadhyaysanjoy18@gmail.com">chattopadhyaysanjoy18@gmail.com</a>
+            <a href="https://github.com/Sanjoy-Chattopadhay" target="_blank" rel="noreferrer">github.com/Sanjoy-Chattopadhay</a>
+            <a href="https://topmate.io/sanjoy_chattopadhyay/" target="_blank" rel="noreferrer">topmate.io/sanjoy_chattopadhyay</a>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Built with HTML, CSS, JS and GitHub API metadata.</p>
+      <p>&copy; <span id="year"></span> Sanjoy Chattopadhyay</p>
+    </footer>
+    <script src="script.js"></script>
+  </body>
+</html>
