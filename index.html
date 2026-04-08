@@ -1,183 +1,274 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sanjoy Chattopadhyay | 3D Portfolio</title>
-    <meta
-      name="description"
-      content="3D portfolio of Sanjoy Chattopadhyay featuring GitHub-driven projects, real-world use cases, blog notes, books, and interview learnings."
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Syne:wght@500;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class="bg-orb orb-one"></div>
-    <div class="bg-orb orb-two"></div>
-    <div class="grid-overlay"></div>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sanjoy Chattopadhyay | Portfolio</title>
+  <meta name="description" content="Portfolio of Sanjoy Chattopadhyay — AI/ML Engineer, Full-Stack Developer, Blockchain Builder. M.Tech CS @ NIT Durgapur." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <canvas id="bg-canvas"></canvas>
 
-    <header class="site-header">
-      <a class="brand" href="#top">SC</a>
-      <nav class="nav">
-        <a href="#about">About</a>
-        <a href="#projects">Projects</a>
-        <a href="#blogs">Blogs</a>
-        <a href="#books">Books</a>
-        <a href="#interview">Interview</a>
-        <a href="#connect">Connect</a>
-      </nav>
-    </header>
+  <!-- Floating 3D shapes -->
+  <div class="scene-shapes" aria-hidden="true">
+    <div class="float-shape shape-cube">
+      <div class="cube-3d"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+    <div class="float-shape shape-ring"></div>
+    <div class="float-shape shape-ring2"></div>
+    <div class="float-shape shape-dot dot1"></div>
+    <div class="float-shape shape-dot dot2"></div>
+    <div class="float-shape shape-dot dot3"></div>
+  </div>
 
-    <main id="top">
-      <section class="hero reveal">
-        <div class="hero-copy">
-          <p class="eyebrow">Engineer + Builder + Mentor</p>
-          <h1>Building real-world AI systems, not just demos.</h1>
-          <p>
-            I am <strong>Sanjoy Chattopadhyay</strong>. I work on <strong>LangChain, LangGraph,
-            MCP agents, RAG systems, and backend engineering</strong> to solve practical problems.
-            This portfolio is upgraded with a stronger 3D UI and project data picked from my GitHub profile.
-          </p>
-          <div class="hero-actions">
-            <a class="button primary" href="https://github.com/Sanjoy-Chattopadhay" target="_blank" rel="noreferrer">GitHub</a>
-            <a class="button" href="https://www.linkedin.com/in/sanjoy-chattopadhyay-390b3a1a6/" target="_blank" rel="noreferrer">LinkedIn</a>
-            <a class="button" href="Gen_AI.pdf" target="_blank" rel="noreferrer">Resume</a>
+  <!-- Header -->
+  <header class="header glass">
+    <a class="logo" href="#top">SC</a>
+    <nav class="nav" id="nav">
+      <a href="#about">About</a>
+      <a href="#projects">Projects</a>
+      <a href="#blogs">Blogs</a>
+      <a href="#books">Books</a>
+      <a href="#interview">Interview</a>
+      <a href="#connect">Connect</a>
+    </nav>
+    <div class="header-actions">
+      <button id="theme-toggle" class="theme-btn" aria-label="Toggle theme">
+        <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <button id="menu-toggle" class="menu-btn" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- Hero -->
+    <section class="hero anim-in">
+      <div class="hero-content">
+        <div class="badge-row">
+          <span class="badge">Engineer</span>
+          <span class="badge">Builder</span>
+          <span class="badge">Researcher</span>
+        </div>
+        <h1>Building AI systems<br/>that solve <span class="gradient-text">real problems</span>.</h1>
+        <p class="hero-sub">M.Tech CS @ NIT Durgapur &bull; Ex-SDE @ HCLTech &bull; GATE 2024: 97.18%ile</p>
+        <p class="hero-desc">Specializing in LangChain, LangGraph, MCP Agents, RAG Systems, Blockchain, and Backend Engineering to build production-grade solutions.</p>
+        <div class="hero-btns">
+          <a href="https://github.com/Sanjoy-Chattopadhay" target="_blank" rel="noreferrer" class="btn btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            GitHub
+          </a>
+          <a href="https://www.linkedin.com/in/sanjoy-chattopadhyay-390b3a1a6/" target="_blank" rel="noreferrer" class="btn">LinkedIn</a>
+          <a href="Gen_AI.pdf" target="_blank" rel="noreferrer" class="btn">Resume</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-sphere"></div>
+        <div class="orbit orbit1"><div class="orbit-dot"></div></div>
+        <div class="orbit orbit2"><div class="orbit-dot"></div></div>
+        <div class="orbit orbit3"><div class="orbit-dot"></div></div>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section id="about" class="section anim-in">
+      <h2 class="section-title"><span class="title-num">01</span> About</h2>
+      <div class="about-grid">
+        <!-- Education -->
+        <div class="glass-card card-3d">
+          <div class="card-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.657 2.686 3 6 3s6-1.343 6-3v-5"/></svg>
+          </div>
+          <h3>Education</h3>
+          <div class="timeline">
+            <div class="timeline-item">
+              <span class="tl-year">2024 — 2026</span>
+              <h4>M.Tech in Computer Science & Engineering</h4>
+              <p>National Institute of Technology, Durgapur</p>
+              <span class="tl-badge">CGPA: 9.0</span>
+            </div>
+            <div class="timeline-item">
+              <span class="tl-year">2018 — 2022</span>
+              <h4>B.Tech in Computer Science & Engineering</h4>
+              <p>Birbhum Institute of Engineering & Technology, West Bengal</p>
+              <span class="tl-badge">CGPA: 9.32</span>
+            </div>
           </div>
         </div>
-        <div class="hero-card" data-tilt>
-          <img src="https://avatars.githubusercontent.com/u/64368749?v=4" alt="Sanjoy Chattopadhyay" />
-          <div class="chip">LLM Apps</div>
-          <div class="chip">Multi-Agent</div>
-          <div class="chip">Production Thinking</div>
+        <!-- Achievements -->
+        <div class="glass-card card-3d">
+          <div class="card-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+          </div>
+          <h3>Achievements</h3>
+          <ul class="achievement-list">
+            <li><strong>GATE 2024 CS</strong> — 97.18 percentile</li>
+            <li><strong>Indian Army Innovation Contest 2025</strong> — Top 20 Finalist (National)</li>
+            <li><strong>Ex-SDE at HCLTech</strong> — 2+ years industry experience</li>
+            <li><strong>67+ Open Source Projects</strong> on GitHub</li>
+            <li><strong>CodeChef</strong> — 74 problems solved, 15 contests</li>
+            <li><strong>GeeksforGeeks</strong> — Published articles on DS/Algo</li>
+            <li><strong>LeetCode</strong> — Bit Manipulation, Binary Search specialization</li>
+          </ul>
         </div>
-      </section>
+        <!-- Tech Stack -->
+        <div class="glass-card card-3d full-width">
+          <div class="card-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </div>
+          <h3>Tech Stack</h3>
+          <div class="tech-grid">
+            <div class="tech-category">
+              <h4>Languages</h4>
+              <div class="chips">
+                <span class="chip">Python</span><span class="chip">JavaScript</span><span class="chip">Java</span><span class="chip">C++</span><span class="chip">Solidity</span><span class="chip">C</span><span class="chip">SQL</span>
+              </div>
+            </div>
+            <div class="tech-category">
+              <h4>AI / ML</h4>
+              <div class="chips">
+                <span class="chip accent">LangChain</span><span class="chip accent">LangGraph</span><span class="chip accent">MCP Agents</span><span class="chip accent">RAG</span><span class="chip accent">FAISS</span><span class="chip accent">OpenAI</span><span class="chip accent">Groq</span><span class="chip accent">CNN</span><span class="chip accent">Vision Transformers</span>
+              </div>
+            </div>
+            <div class="tech-category">
+              <h4>Backend & Frontend</h4>
+              <div class="chips">
+                <span class="chip">FastAPI</span><span class="chip">Node.js</span><span class="chip">Express</span><span class="chip">React</span><span class="chip">Streamlit</span><span class="chip">Spring Boot</span><span class="chip">Servlets/JSP</span>
+              </div>
+            </div>
+            <div class="tech-category">
+              <h4>Blockchain</h4>
+              <div class="chips">
+                <span class="chip">Ethereum</span><span class="chip">Solidity</span><span class="chip">ZK Proofs</span><span class="chip">Smart Contracts</span><span class="chip">ERC-20/721/1155</span>
+              </div>
+            </div>
+            <div class="tech-category">
+              <h4>Databases & Tools</h4>
+              <div class="chips">
+                <span class="chip">MongoDB</span><span class="chip">SQLite</span><span class="chip">SQL Server</span><span class="chip">Git</span><span class="chip">Docker</span><span class="chip">Render</span><span class="chip">GitHub Pages</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-      <section id="about" class="section reveal">
-        <h2>How I think about problem solving</h2>
-        <div class="cards two-col">
-          <article class="card">
-            <h3>Motivation first, tools second</h3>
-            <p>
-              Every project starts with one question: what real friction am I reducing? Then I choose
-              architecture, stack, and model strategy around measurable impact.
-            </p>
-          </article>
-          <article class="card">
-            <h3>Coding mindset changed</h3>
-            <p>
-              LangChain, LangGraph, and MCP agents changed my coding dynamics from writing single scripts
-              to designing collaborating systems with memory, tools, and reliable workflows.
-            </p>
-          </article>
-        </div>
-      </section>
+    <!-- Projects -->
+    <section id="projects" class="section anim-in">
+      <h2 class="section-title"><span class="title-num">02</span> Projects</h2>
+      <p class="section-sub">Built from real-world problems. Click any project for full details.</p>
+      <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="ai">AI & GenAI</button>
+        <button class="filter-btn" data-filter="blockchain">Blockchain</button>
+        <button class="filter-btn" data-filter="fullstack">Full-Stack</button>
+        <button class="filter-btn" data-filter="ml">ML & Data</button>
+        <button class="filter-btn" data-filter="systems">Systems</button>
+      </div>
+      <div id="projects-grid" class="projects-grid"></div>
+    </section>
 
-      <section id="projects" class="section reveal">
-        <div class="section-head">
-          <h2>Projects from GitHub with stack + use cases</h2>
-          <p>Loaded from public GitHub metadata and enriched with real-life problem context.</p>
-        </div>
-        <div id="projects-grid" class="cards project-grid"></div>
-      </section>
+    <!-- Blogs -->
+    <section id="blogs" class="section anim-in">
+      <h2 class="section-title"><span class="title-num">03</span> Blogs & Student Resources</h2>
+      <p class="section-sub">Guides, reflections, and curated resources for students and builders.</p>
+      <div id="blogs-grid" class="blogs-grid"></div>
+    </section>
 
-      <section id="blogs" class="section reveal">
-        <div class="section-head">
-          <h2>Blogs: getting started with real-life problems</h2>
-        </div>
-        <div class="cards three-col">
-          <article class="card">
-            <h3>How to Start Solving a Real-Life Problem</h3>
-            <p>
-              Start with observation, not code. Write down repeated pain points, estimate who is affected,
-              then build the smallest tool that saves time today.
-            </p>
-          </article>
-          <article class="card">
-            <h3>Finding Motivation That Lasts</h3>
-            <p>
-              Motivation improves when your project has a user, a deadline, and visible progress.
-              Build in public, collect feedback, and track impact metrics weekly.
-            </p>
-          </article>
-          <article class="card">
-            <h3>How Agentic AI Changed Coding</h3>
-            <p>
-              Moving from linear scripts to agent graphs changed how I design software:
-              context management, tool orchestration, safety checks, and auditability now matter as much as model choice.
-            </p>
-          </article>
-        </div>
-      </section>
+    <!-- Books -->
+    <section id="books" class="section anim-in">
+      <h2 class="section-title"><span class="title-num">04</span> Books That Shape My Thinking</h2>
+      <div id="books-grid" class="books-grid"></div>
+    </section>
 
-      <section id="books" class="section reveal">
-        <div class="section-head">
-          <h2>Favorite books that shape my thinking</h2>
+    <!-- Interview -->
+    <section id="interview" class="section anim-in">
+      <h2 class="section-title"><span class="title-num">05</span> Interview Experience</h2>
+      <div class="glass-card card-3d interview-card">
+        <div class="interview-header">
+          <h3>MathWorks — Why I Did Not Clear</h3>
+          <span class="interview-tag">Learning Experience</span>
         </div>
-        <div class="cards two-col">
-          <article class="card">
-            <h3>Deep Work</h3>
-            <p>Focus and craftsmanship mindset for hard technical work.</p>
-            <a href="https://www.calnewport.com/books/deep-work/" target="_blank" rel="noreferrer">Book link</a>
-          </article>
-          <article class="card">
-            <h3>Atomic Habits</h3>
-            <p>Systems for consistency, useful for coding and interview preparation.</p>
-            <a href="https://jamesclear.com/atomic-habits" target="_blank" rel="noreferrer">Book link</a>
-          </article>
-          <article class="card">
-            <h3>Designing Data-Intensive Applications</h3>
-            <p>Strong foundations for scalable and reliable engineering decisions.</p>
-            <a href="https://dataintensive.net/" target="_blank" rel="noreferrer">Book link</a>
-          </article>
-          <article class="card">
-            <h3>Grokking Algorithms</h3>
-            <p>Visual intuition for algorithmic thinking and interview confidence.</p>
-            <a href="https://www.manning.com/books/grokking-algorithms" target="_blank" rel="noreferrer">Book link</a>
-          </article>
+        <div class="interview-body">
+          <div class="interview-section">
+            <h4>What Happened</h4>
+            <p>My MathWorks interview was a turning point. I knew the concepts but couldn't translate them fast enough under pressure. The DSA rounds required edge-case awareness and optimized thinking within tight time limits. I had the knowledge but lacked the speed and structured communication to present solutions clearly.</p>
+          </div>
+          <div class="interview-section">
+            <h4>Where I Fell Short</h4>
+            <ul>
+              <li>Under-invested in timed practice for edge-case heavy DSA problems</li>
+              <li>Couldn't articulate my thought process concisely during the interview</li>
+              <li>Spent too long on brute-force approaches before optimizing</li>
+              <li>Didn't practice enough mock interviews with real-time feedback</li>
+            </ul>
+          </div>
+          <div class="interview-section">
+            <h4>What Changed After</h4>
+            <ul>
+              <li>Weekly mock interviews with peers — explaining solutions out loud</li>
+              <li>Timed problem-solving sessions (25-min Pomodoro blocks)</li>
+              <li>Short revision notes for core CS fundamentals</li>
+              <li>Benchmarking progress with timed question sets on LeetCode</li>
+              <li>Focused on communication: "Think aloud, structure first, code second"</li>
+            </ul>
+          </div>
+          <div class="interview-section">
+            <h4>Key Takeaway</h4>
+            <p>Understanding concepts is necessary but not sufficient. Speed, clarity under pressure, and the ability to communicate your thinking in real-time are equally critical. Every rejection is data — use it to calibrate your preparation strategy.</p>
+          </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <section id="interview" class="section reveal">
-        <div class="section-head">
-          <h2>MathWorks interview experience: why I did not clear</h2>
-        </div>
-        <article class="card full">
-          <p>
-            My MathWorks experience taught me that understanding concepts is not enough; speed, communication,
-            and clarity under pressure are equally important. I missed consistency in translating thought process
-            into concise answers, and I under-invested in timed practice for edge-case heavy DSA rounds.
-          </p>
-          <p>
-            What changed after that: I now run weekly mock interviews, explain solutions out loud, revise core CS
-            fundamentals with short notes, and benchmark progress using timed question sets.
-          </p>
-        </article>
-      </section>
+    <!-- Connect -->
+    <section id="connect" class="section anim-in">
+      <h2 class="section-title"><span class="title-num">06</span> Connect</h2>
+      <p class="section-sub">Open for collaborations, research work, and AI/backend engineering opportunities.</p>
+      <div class="connect-grid">
+        <a href="mailto:chattopadhyaysanjoy18@gmail.com" class="connect-card glass-card card-3d">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          <span>chattopadhyaysanjoy18@gmail.com</span>
+        </a>
+        <a href="https://github.com/Sanjoy-Chattopadhay" target="_blank" rel="noreferrer" class="connect-card glass-card card-3d">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+          <span>github.com/Sanjoy-Chattopadhay</span>
+        </a>
+        <a href="https://www.linkedin.com/in/sanjoy-chattopadhyay-390b3a1a6/" target="_blank" rel="noreferrer" class="connect-card glass-card card-3d">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          <span>LinkedIn</span>
+        </a>
+        <a href="https://topmate.io/sanjoy_chattopadhyay/" target="_blank" rel="noreferrer" class="connect-card glass-card card-3d">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Topmate (Mentoring)</span>
+        </a>
+      </div>
+    </section>
+  </main>
 
-      <section id="connect" class="section reveal">
-        <div class="cards two-col">
-          <article class="card">
-            <h3>Connect</h3>
-            <p>Open for internships, collaborations, and AI/backend problem-solving work.</p>
-          </article>
-          <article class="card links">
-            <a href="mailto:chattopadhyaysanjoy18@gmail.com">chattopadhyaysanjoy18@gmail.com</a>
-            <a href="https://github.com/Sanjoy-Chattopadhay" target="_blank" rel="noreferrer">github.com/Sanjoy-Chattopadhay</a>
-            <a href="https://topmate.io/sanjoy_chattopadhyay/" target="_blank" rel="noreferrer">topmate.io/sanjoy_chattopadhyay</a>
-          </article>
-        </div>
-      </section>
-    </main>
+  <footer class="footer">
+    <p>Built with passion, code, and Three.js</p>
+    <p>&copy; <span id="year"></span> Sanjoy Chattopadhyay</p>
+  </footer>
 
-    <footer>
-      <p>Built with HTML, CSS, JS and GitHub API metadata.</p>
-      <p>&copy; <span id="year"></span> Sanjoy Chattopadhyay</p>
-    </footer>
-    <script src="script.js"></script>
-  </body>
+  <!-- Full-page Modal -->
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-panel glass">
+      <button class="modal-close" data-close aria-label="Close">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="script.js"></script>
+</body>
 </html>
