@@ -711,40 +711,169 @@ const books = [
 // ===== RENDER PROJECTS =====
 const projectsGrid = document.getElementById('projects-grid');
 
+function makeProjectTheme(accent, accent2, soft, glow) {
+  return `--project-accent:${accent}; --project-accent-2:${accent2}; --project-soft:${soft}; --project-glow:${glow};`;
+}
+
+const projectMotionProfiles = {
+  'AI_Research-Agent': {
+    label: 'Agent Swarm',
+    sceneClass: 'scene-agents',
+    style: makeProjectTheme('#8b5cf6', '#22d3ee', 'rgba(139, 92, 246, 0.14)', 'rgba(34, 211, 238, 0.2)'),
+    visual: '<span class="v-orbit orbit-1"></span><span class="v-orbit orbit-2"></span><span class="v-node center"></span><span class="v-node n1"></span><span class="v-node n2"></span><span class="v-node n3"></span>'
+  },
+  'med-bot': {
+    label: 'Vital Pulse',
+    sceneClass: 'scene-medical',
+    style: makeProjectTheme('#ef4444', '#22c55e', 'rgba(239, 68, 68, 0.12)', 'rgba(34, 197, 94, 0.18)'),
+    visual: '<span class="v-wave"></span><span class="v-beacon"></span><span class="v-plus"></span>'
+  },
+  'BasicChatBot': {
+    label: 'Live Dialogue',
+    sceneClass: 'scene-chatbot',
+    style: makeProjectTheme('#3b82f6', '#a855f7', 'rgba(59, 130, 246, 0.14)', 'rgba(168, 85, 247, 0.18)'),
+    visual: '<span class="v-bubble bubble-1"></span><span class="v-bubble bubble-2"></span><span class="v-bubble bubble-3"></span><span class="v-dot dot-1"></span><span class="v-dot dot-2"></span><span class="v-dot dot-3"></span>'
+  },
+  'Expense-Tracker-Expense-Manager': {
+    label: 'Protocol Flow',
+    sceneClass: 'scene-mcp',
+    style: makeProjectTheme('#06b6d4', '#f59e0b', 'rgba(6, 182, 212, 0.14)', 'rgba(245, 158, 11, 0.2)'),
+    visual: '<span class="v-track track-1"></span><span class="v-track track-2"></span><span class="v-track track-3"></span><span class="v-packet packet-a"></span><span class="v-packet packet-b"></span><span class="v-packet packet-c"></span>'
+  },
+  'GenAI-langchain': {
+    label: 'Chain Logic',
+    sceneClass: 'scene-chain',
+    style: makeProjectTheme('#14b8a6', '#8b5cf6', 'rgba(20, 184, 166, 0.14)', 'rgba(139, 92, 246, 0.2)'),
+    visual: '<span class="v-pill pill-1"></span><span class="v-pill pill-2"></span><span class="v-pill pill-3"></span><span class="v-pulse pulse-1"></span>'
+  },
+  'will-on-chain': {
+    label: 'Inheritance Orbit',
+    sceneClass: 'scene-inheritance',
+    style: makeProjectTheme('#f59e0b', '#f97316', 'rgba(245, 158, 11, 0.14)', 'rgba(249, 115, 22, 0.22)'),
+    visual: '<span class="v-orbit orbit-1"></span><span class="v-orbit orbit-2"></span><span class="v-core"></span><span class="v-heir heir-1"></span><span class="v-heir heir-2"></span><span class="v-heir heir-3"></span>'
+  },
+  'ZK-KGVerify': {
+    label: 'Proof Shield',
+    sceneClass: 'scene-zk',
+    style: makeProjectTheme('#6366f1', '#22c55e', 'rgba(99, 102, 241, 0.14)', 'rgba(34, 197, 94, 0.18)'),
+    visual: '<span class="v-shield"></span><span class="v-cell cell-1"></span><span class="v-cell cell-2"></span><span class="v-cell cell-3"></span>'
+  },
+  'Police-Station-Blockchain': {
+    label: 'Audit Scan',
+    sceneClass: 'scene-police',
+    style: makeProjectTheme('#60a5fa', '#06b6d4', 'rgba(96, 165, 250, 0.14)', 'rgba(6, 182, 212, 0.18)'),
+    visual: '<span class="v-ledger row-1"></span><span class="v-ledger row-2"></span><span class="v-ledger row-3"></span><span class="v-scan"></span>'
+  },
+  'D-Voting': {
+    label: 'Trust Count',
+    sceneClass: 'scene-voting',
+    style: makeProjectTheme('#10b981', '#3b82f6', 'rgba(16, 185, 129, 0.14)', 'rgba(59, 130, 246, 0.2)'),
+    visual: '<span class="v-bar bar-1"></span><span class="v-bar bar-2"></span><span class="v-bar bar-3"></span><span class="v-check"></span>'
+  },
+  'DiaryContract': {
+    label: 'Private Pages',
+    sceneClass: 'scene-diary',
+    style: makeProjectTheme('#ec4899', '#8b5cf6', 'rgba(236, 72, 153, 0.14)', 'rgba(139, 92, 246, 0.18)'),
+    visual: '<span class="v-page page-1"></span><span class="v-page page-2"></span><span class="v-page page-3"></span><span class="v-ink"></span>'
+  },
+  'military-equipment-app': {
+    label: 'Radar Sweep',
+    sceneClass: 'scene-radar',
+    style: makeProjectTheme('#22c55e', '#84cc16', 'rgba(34, 197, 94, 0.14)', 'rgba(132, 204, 22, 0.2)'),
+    visual: '<span class="v-ring ring-1"></span><span class="v-ring ring-2"></span><span class="v-sweep"></span><span class="v-blip blip-1"></span><span class="v-blip blip-2"></span>'
+  },
+  'Movie-Recommender': {
+    label: 'Cinema Beam',
+    sceneClass: 'scene-movie',
+    style: makeProjectTheme('#f97316', '#facc15', 'rgba(249, 115, 22, 0.14)', 'rgba(250, 204, 21, 0.18)'),
+    visual: '<span class="v-reel"></span><span class="v-beam"></span><span class="v-ticket"></span>'
+  },
+  'ImageDataProjects': {
+    label: 'Vision Focus',
+    sceneClass: 'scene-vision',
+    style: makeProjectTheme('#38bdf8', '#8b5cf6', 'rgba(56, 189, 248, 0.14)', 'rgba(139, 92, 246, 0.18)'),
+    visual: '<span class="v-frame corner-1"></span><span class="v-frame corner-2"></span><span class="v-frame corner-3"></span><span class="v-frame corner-4"></span><span class="v-focus"></span><span class="v-scan"></span>'
+  },
+  'Trip_Planner_Backend': {
+    label: 'Route Trace',
+    sceneClass: 'scene-travel',
+    style: makeProjectTheme('#06b6d4', '#3b82f6', 'rgba(6, 182, 212, 0.14)', 'rgba(59, 130, 246, 0.18)'),
+    visual: '<span class="v-route"></span><span class="v-pin pin-1"></span><span class="v-pin pin-2"></span><span class="v-plane"></span>'
+  },
+  'expensetracker_web': {
+    label: 'Cash Flow',
+    sceneClass: 'scene-finance',
+    style: makeProjectTheme('#22c55e', '#14b8a6', 'rgba(34, 197, 94, 0.14)', 'rgba(20, 184, 166, 0.18)'),
+    visual: '<span class="v-bar bar-1"></span><span class="v-bar bar-2"></span><span class="v-bar bar-3"></span><span class="v-coin"></span>'
+  },
+  'cpu-scheduling-simulator': {
+    label: 'CPU Timeline',
+    sceneClass: 'scene-cpu',
+    style: makeProjectTheme('#94a3b8', '#38bdf8', 'rgba(148, 163, 184, 0.14)', 'rgba(56, 189, 248, 0.18)'),
+    visual: '<span class="v-lane lane-1"></span><span class="v-lane lane-2"></span><span class="v-lane lane-3"></span><span class="v-job job-1"></span><span class="v-job job-2"></span><span class="v-job job-3"></span>'
+  },
+  'Understanding-Poverty-Dynamics': {
+    label: 'Social Graph',
+    sceneClass: 'scene-graph',
+    style: makeProjectTheme('#14b8a6', '#84cc16', 'rgba(20, 184, 166, 0.14)', 'rgba(132, 204, 22, 0.18)'),
+    visual: '<span class="v-edge edge-1"></span><span class="v-edge edge-2"></span><span class="v-edge edge-3"></span><span class="v-node n1"></span><span class="v-node n2"></span><span class="v-node n3"></span><span class="v-node n4"></span>'
+  },
+  default: {
+    label: 'Project Motion',
+    sceneClass: 'scene-agents',
+    style: makeProjectTheme('#8b5cf6', '#22d3ee', 'rgba(139, 92, 246, 0.14)', 'rgba(34, 211, 238, 0.2)'),
+    visual: '<span class="v-orbit orbit-1"></span><span class="v-orbit orbit-2"></span><span class="v-node center"></span><span class="v-node n1"></span><span class="v-node n2"></span><span class="v-node n3"></span>'
+  }
+};
+
+function getProjectMotion(project) {
+  return projectMotionProfiles[project.id] || projectMotionProfiles.default;
+}
+
+function renderProjectScene(motion, mode = 'card') {
+  const containerClass = mode === 'card' ? 'project-visual' : 'modal-3d-scene project-scene';
+  return `<div class="${containerClass} ${motion.sceneClass}" style="${motion.style}" aria-hidden="true">${motion.visual}</div>`;
+}
+
 function renderProjects(filter = 'all') {
   const filtered = filter === 'all' ? projects : projects.filter(p => p.category === filter);
-  projectsGrid.innerHTML = filtered.map(p => `
-    <article class="project-card" data-id="${p.id}" data-category="${p.category}">
-      <span class="card-category">${p.categoryLabel}</span>
-      <h3>${p.title}</h3>
-      <p class="card-desc">${p.description}</p>
-      <div class="card-stack">
-        ${p.techStack.slice(0, 4).map(t => `<span class="stack-tag">${t}</span>`).join('')}
-        ${p.techStack.length > 4 ? `<span class="stack-tag">+${p.techStack.length - 4}</span>` : ''}
-      </div>
-      <div class="card-footer">
-        <a href="${p.github}" target="_blank" rel="noreferrer" class="card-link" onclick="event.stopPropagation()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-          GitHub
-        </a>
-        ${p.live ? `<a href="${p.live}" target="_blank" rel="noreferrer" class="card-link" onclick="event.stopPropagation()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-          Live
-        </a>` : ''}
-      </div>
-    </article>
-  `).join('');
+  projectsGrid.innerHTML = filtered.map(p => {
+    const motion = getProjectMotion(p);
+    return `
+      <article class="project-card" data-id="${p.id}" data-category="${p.category}" style="${motion.style}">
+        <div class="project-head">
+          <span class="card-category">${p.categoryLabel}</span>
+          <span class="card-motion-label">${motion.label}</span>
+        </div>
+        ${renderProjectScene(motion)}
+        <h3>${p.title}</h3>
+        <p class="card-desc">${p.description}</p>
+        <div class="card-stack">
+          ${p.techStack.slice(0, 4).map(t => `<span class="stack-tag">${t}</span>`).join('')}
+          ${p.techStack.length > 4 ? `<span class="stack-tag">+${p.techStack.length - 4}</span>` : ''}
+        </div>
+        <div class="card-footer">
+          <a href="${p.github}" target="_blank" rel="noreferrer" class="card-link" onclick="event.stopPropagation()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            GitHub
+          </a>
+          ${p.live ? `<a href="${p.live}" target="_blank" rel="noreferrer" class="card-link" onclick="event.stopPropagation()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Live
+          </a>` : ''}
+        </div>
+      </article>
+    `;
+  }).join('');
 
   // Bind click to open modal
   document.querySelectorAll('.project-card').forEach(card => {
     card.addEventListener('click', () => {
       const p = projects.find(pr => pr.id === card.dataset.id);
+      const motion = p ? getProjectMotion(p) : null;
       if (!p) return;
       openModal(`
-        <div class="modal-3d-scene">
-          <div class="modal-3d-shape"><span></span><span></span><span></span><span></span><span></span><span></span></div>
-          ${Array.from({length: 8}, (_, i) => `<div class="particle" style="left:${10 + Math.random()*80}%;top:${10 + Math.random()*80}%;animation-delay:${i * 0.3}s"></div>`).join('')}
-        </div>
+        ${motion ? renderProjectScene(motion, 'modal') : ''}
         <h2>${p.title}</h2>
         <div class="modal-meta">
           ${p.techStack.map(t => `<span class="meta-tag">${t}</span>`).join('')}
@@ -858,8 +987,29 @@ function renderBooks() {
   enableTilt('.book-card');
 }
 
+// ===== MEMORY GALLERY =====
+function initMemoryGallery() {
+  document.querySelectorAll('.memory-shot').forEach(card => {
+    card.addEventListener('click', () => {
+      const img = card.dataset.image;
+      const title = card.dataset.title || 'Memory';
+      const caption = card.dataset.caption || '';
+      openModal(`
+        <div class="memory-modal-media">
+          <img src="${img}" alt="${title}">
+        </div>
+        <h2>${title}</h2>
+        <p class="memory-modal-caption">${caption}</p>
+      `);
+    });
+  });
+
+  enableTilt('.company-card');
+}
+
 // ===== INIT =====
 renderProjects();
 renderBlogs();
 renderBooks();
+initMemoryGallery();
 document.getElementById('year').textContent = new Date().getFullYear();
