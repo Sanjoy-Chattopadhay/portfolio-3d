@@ -189,6 +189,187 @@ const revealObserver = new IntersectionObserver((entries) => {
 }, { threshold: 0.1 });
 animNodes.forEach(n => revealObserver.observe(n));
 
+// ===== LIFE ROUTE — VERTICAL MOUNTAIN ROAD BUS ANIMATION =====
+(function initLifeRoute() {
+  const scene = document.querySelector('.route-mountain-scene');
+  const busWrap = document.querySelector('.route-bus-wrap');
+  const roadSvg = scene && scene.querySelector('.route-road-svg');
+  const stops = scene ? scene.querySelectorAll('.route-stops-layer .route-stop') : [];
+
+  if (!scene || !busWrap || !roadSvg || !stops.length) return;
+
+  const pathEl = roadSvg.querySelector('.road-path-bg');
+  if (!pathEl) return;
+
+  const totalLen = pathEl.getTotalLength();
+  const numStops = stops.length;
+  const SVG_W = 1200;
+  const SVG_H = 2400;
+
+  // Stop positions along the path (evenly spaced, first ~8% in, last ~85%)
+  const stopFractions = [];
+  for (let i = 0; i < numStops; i++) {
+    stopFractions.push(0.06 + (i * 0.8) / (numStops - 1));
+  }
+
+  // Convert SVG coords to pixel coords within the scene container
+  function svgToPixel(svgX, svgY) {
+    const rect = scene.getBoundingClientRect();
+    return {
+      x: (svgX / SVG_W) * rect.width,
+      y: (svgY / SVG_H) * rect.height
+    };
+  }
+
+  function positionStops() {
+    stops.forEach((stop, i) => {
+      const pt = pathEl.getPointAtLength(stopFractions[i] * totalLen);
+      const px = svgToPixel(pt.x, pt.y);
+      stop.style.left = px.x + 'px';
+      stop.style.top = px.y + 'px';
+    });
+  }
+
+  positionStops();
+
+  // Bus state
+  let currentStop = -1;
+  let busProgress = 0;
+  let targetProgress = 0;
+  let isAnimating = false;
+  let pauseTimer = null;
+  let exhaustInterval = null;
+
+  function updateBusPosition(progress) {
+    const pt = pathEl.getPointAtLength(progress * totalLen);
+    const pt2 = pathEl.getPointAtLength(Math.min(progress * totalLen + 5, totalLen));
+    const px = svgToPixel(pt.x, pt.y);
+    const px2 = svgToPixel(pt2.x, pt2.y);
+
+    const angle = Math.atan2(px2.y - px.y, px2.x - px.x) * (180 / Math.PI);
+
+    busWrap.style.left = (px.x - 25) + 'px';
+    busWrap.style.top = (px.y - 15) + 'px';
+    busWrap.style.transform = `rotate(${angle}deg)`;
+  }
+
+  function spawnExhaust() {
+    const pt = pathEl.getPointAtLength(busProgress * totalLen);
+    const px = svgToPixel(pt.x, pt.y);
+    const particle = document.createElement('span');
+    particle.className = 'bus-exhaust';
+    particle.style.left = px.x + 'px';
+    particle.style.top = px.y + 'px';
+    scene.appendChild(particle);
+    setTimeout(() => particle.remove(), 800);
+  }
+
+  function showStop(index) {
+    stops.forEach((s, i) => {
+      if (i === index) s.classList.add('active');
+      else s.classList.remove('active');
+    });
+  }
+
+  function animateBusToStop(stopIndex) {
+    if (stopIndex >= numStops) {
+      // Drive off into the distance, then restart
+      targetProgress = 0.98;
+    } else {
+      targetProgress = stopFractions[stopIndex];
+    }
+    isAnimating = true;
+
+    // Clear previous cards when bus starts moving
+    stops.forEach(s => s.classList.remove('active'));
+
+    if (exhaustInterval) clearInterval(exhaustInterval);
+    exhaustInterval = setInterval(spawnExhaust, 180);
+
+    function step() {
+      if (!isAnimating) return;
+
+      // Easing: fast in middle, slows near the stop
+      const remaining = targetProgress - busProgress;
+      const speed = Math.max(0.00015, Math.min(0.0006, remaining * 0.012));
+
+      if (busProgress < targetProgress - 0.0008) {
+        busProgress += speed;
+        updateBusPosition(busProgress);
+        requestAnimationFrame(step);
+      } else {
+        // Arrived at stop
+        busProgress = targetProgress;
+        updateBusPosition(busProgress);
+        isAnimating = false;
+        if (exhaustInterval) { clearInterval(exhaustInterval); exhaustInterval = null; }
+
+        if (stopIndex >= numStops) {
+          // Restart the journey
+          pauseTimer = setTimeout(() => {
+            busProgress = 0;
+            currentStop = -1;
+            updateBusPosition(0);
+            stops.forEach(s => s.classList.remove('active'));
+            pauseTimer = setTimeout(() => animateBusToStop(0), 1200);
+          }, 2500);
+          return;
+        }
+
+        // Show stop card
+        showStop(stopIndex);
+        currentStop = stopIndex;
+
+        // Pause at stop for reading, then continue
+        pauseTimer = setTimeout(() => {
+          animateBusToStop(stopIndex + 1);
+        }, 4500);
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  // Auto-start when the section scrolls into view
+  let hasStarted = false;
+  const routeObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting && !hasStarted) {
+        hasStarted = true;
+        busProgress = 0;
+        updateBusPosition(0);
+        pauseTimer = setTimeout(() => animateBusToStop(0), 900);
+      }
+    });
+  }, { threshold: 0.1 });
+  routeObserver.observe(scene);
+
+  // Pause when off-screen, resume when back
+  const visObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) {
+        isAnimating = false;
+        if (pauseTimer) { clearTimeout(pauseTimer); pauseTimer = null; }
+        if (exhaustInterval) { clearInterval(exhaustInterval); exhaustInterval = null; }
+      } else if (hasStarted && !isAnimating && currentStop >= 0 && !pauseTimer) {
+        pauseTimer = setTimeout(() => {
+          animateBusToStop(currentStop + 1);
+        }, 600);
+      }
+    });
+  }, { threshold: 0 });
+  visObserver.observe(scene);
+
+  // Recalculate positions on resize
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      positionStops();
+      updateBusPosition(busProgress);
+    }, 200);
+  });
+})();
+
 // ===== 3D CARD TILT =====
 function enableTilt(selector) {
   if (!window.matchMedia('(pointer: fine)').matches) return;
@@ -920,19 +1101,27 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 const blogsGrid = document.getElementById('blogs-grid');
 
 function renderBlogs() {
-  blogsGrid.innerHTML = blogs.map(b => `
-    <article class="blog-card" data-id="${b.id}">
-      <div class="blog-icon" style="background:${b.iconBg}">${b.icon}</div>
-      <h3>${b.title}</h3>
-      <p>${b.summary}</p>
-      <div class="blog-tags">
-        ${b.tags.map(t => `<span class="blog-tag">${t}</span>`).join('')}
+  blogsGrid.innerHTML = blogs.map((b, idx) => `
+    <article class="blog-card" data-id="${b.id}" role="button" tabindex="0" aria-label="Read blog: ${b.title}">
+      <div class="blog-num">0${idx + 1}</div>
+      <div class="blog-body">
+        <div class="blog-icon-wrap" style="background:${b.iconBg}">${b.icon}</div>
+        <div class="blog-text">
+          <h3>${b.title}</h3>
+          <p>${b.summary}</p>
+          <div class="blog-tags">
+            ${b.tags.map(t => `<span class="blog-tag">${t}</span>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="blog-arrow">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </div>
     </article>
   `).join('');
 
   document.querySelectorAll('.blog-card').forEach(card => {
-    card.addEventListener('click', () => {
+    const open = () => {
       const b = blogs.find(bl => bl.id === card.dataset.id);
       if (!b) return;
       openModal(`
@@ -961,10 +1150,10 @@ function renderBlogs() {
           </div>
         ` : ''}
       `);
-    });
+    };
+    card.addEventListener('click', open);
+    card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') open(); });
   });
-
-  enableTilt('.blog-card');
 }
 
 // ===== RENDER BOOKS =====
@@ -972,19 +1161,23 @@ const booksGrid = document.getElementById('books-grid');
 
 function renderBooks() {
   booksGrid.innerHTML = books.map(b => `
-    <article class="book-card">
-      <div class="book-emoji">${b.emoji}</div>
-      <h3>${b.title}</h3>
-      <span class="book-author">${b.author}</span>
-      <p>${b.desc}</p>
-      <a href="${b.url}" target="_blank" rel="noreferrer" class="book-link">
-        Read more
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-      </a>
-    </article>
+    <a href="${b.url}" target="_blank" rel="noreferrer" class="book-card" aria-label="${b.title} by ${b.author}">
+      <div class="book-spine"></div>
+      <div class="book-cover">
+        <div class="book-emoji">${b.emoji}</div>
+        <div class="book-info">
+          <h3>${b.title}</h3>
+          <span class="book-author">${b.author}</span>
+        </div>
+      </div>
+      <div class="book-desc">
+        <p>${b.desc}</p>
+        <span class="book-link">
+          Open →
+        </span>
+      </div>
+    </a>
   `).join('');
-
-  enableTilt('.book-card');
 }
 
 // ===== MEMORY GALLERY =====

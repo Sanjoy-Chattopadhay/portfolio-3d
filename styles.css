@@ -678,12 +678,14 @@ h1 {
   z-index: 1;
 }
 
+/* === Life Route — Vertical Mountain Road === */
 .life-route {
   margin-top: 1.6rem;
 }
 
 .route-head {
   margin-bottom: 1.2rem;
+  text-align: center;
 }
 
 .route-label {
@@ -707,74 +709,168 @@ h1 {
   line-height: 1.5;
 }
 
-.route-road {
+/* === Mountain Scene Container — no box, merges with page === */
+.route-mountain-scene {
   position: relative;
-  display: grid;
-  gap: 1rem;
-  padding-left: 5.5rem;
+  width: 100%;
+  /* aspect ratio of SVG viewBox 1200:2400 */
+  aspect-ratio: 1200 / 2200;
+  max-height: 2000px;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
 }
 
-.route-line {
+/* Mountain background SVG */
+.mtn-bg {
   position: absolute;
-  left: 1.8rem;
-  top: 0;
-  bottom: 0;
-  width: 2.4rem;
-  border-radius: 999px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02)),
-    repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0 12px, transparent 12px 24px),
-    linear-gradient(180deg, rgba(124, 58, 237, 0.35), rgba(6, 182, 212, 0.25));
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
 }
 
-.route-bus {
-  position: sticky;
-  top: 6.2rem;
-  left: 0;
-  width: 3.6rem;
-  height: 3.6rem;
-  margin-left: 1.2rem;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  color: #fff;
-  background: var(--gradient);
-  box-shadow: 0 14px 30px rgba(124, 58, 237, 0.28);
+.mtn-layer.mtn-far path { fill: rgba(40, 30, 80, 0.5); }
+.mtn-layer.mtn-mid path { fill: rgba(25, 20, 60, 0.6); }
+.mtn-trees polygon { fill: rgba(15, 60, 25, 0.45); }
+
+/* === SVG Road === */
+.route-road-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
   z-index: 2;
 }
 
+.road-path-glow {
+  stroke: rgba(124, 58, 237, 0.1);
+  stroke-width: 55;
+  stroke-linecap: round;
+  fill: none;
+  filter: blur(6px);
+}
+
+.road-path-bg {
+  stroke: rgba(55, 50, 85, 0.9);
+  stroke-width: 42;
+  stroke-linecap: round;
+  fill: none;
+}
+
+.road-path-dash {
+  stroke: rgba(255, 255, 200, 0.6);
+  stroke-width: 2.5;
+  stroke-dasharray: 16 12;
+  stroke-linecap: round;
+  fill: none;
+}
+
+/* === Bus === */
+.route-bus-wrap {
+  position: absolute;
+  width: 50px;
+  height: 30px;
+  z-index: 10;
+  filter: drop-shadow(0 4px 18px rgba(124, 58, 237, 0.55));
+  will-change: left, top, transform;
+}
+
+.route-bus-icon {
+  width: 50px;
+  height: 30px;
+}
+
+/* === Stop Markers === */
+.route-stops-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+}
+
 .route-stop {
+  position: absolute;
+  pointer-events: auto;
+}
+
+.stop-marker {
   position: relative;
-  padding: 1.3rem 1.35rem 1.2rem;
-  border-radius: 22px;
-  border: 1px solid rgba(124, 58, 237, 0.16);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent),
-    rgba(10, 10, 26, 0.58);
-  overflow: hidden;
+  width: 18px;
+  height: 18px;
+  z-index: 5;
 }
 
-.route-stop::before {
-  content: '';
-  position: absolute;
-  left: -3.55rem;
-  top: 1.5rem;
-  width: 2.35rem;
-  height: 2px;
-  background: linear-gradient(90deg, rgba(124, 58, 237, 0.7), rgba(6, 182, 212, 0.5));
-}
-
-.route-stop::after {
-  content: '';
-  position: absolute;
-  left: -1.48rem;
-  top: 1.08rem;
-  width: 0.95rem;
-  height: 0.95rem;
+.stop-dot {
+  display: block;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--accent), var(--accent2));
-  box-shadow: 0 0 0 6px rgba(124, 58, 237, 0.12);
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.2), 0 0 16px rgba(124, 58, 237, 0.3);
+  transition: transform 0.4s, box-shadow 0.4s;
+}
+
+.route-stop.active .stop-dot {
+  transform: scale(1.5);
+  box-shadow: 0 0 0 6px rgba(124, 58, 237, 0.4), 0 0 30px rgba(124, 58, 237, 0.6);
+}
+
+/* Pulse animation on active dot */
+.route-stop.active .stop-dot::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 2px solid rgba(124, 58, 237, 0.4);
+  animation: dotPulse 1.5s ease-out infinite;
+}
+
+@keyframes dotPulse {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+/* === Stop Cards — positioned left or right of the road === */
+.stop-card {
+  position: absolute;
+  width: 260px;
+  padding: 1rem 1.15rem;
+  border-radius: 16px;
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  background: linear-gradient(180deg, rgba(15,15,40,0.92), rgba(10,10,30,0.96));
+  backdrop-filter: blur(14px);
+  opacity: 0;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  pointer-events: none;
+  z-index: 20;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+/* Right-side stops: card goes to the left */
+.route-stop[data-side="right"] .stop-card {
+  right: calc(100% + 20px);
+  top: 50%;
+  transform: translate(12px, -50%) scale(0.95);
+}
+.route-stop[data-side="right"].active .stop-card {
+  opacity: 1;
+  transform: translate(0, -50%) scale(1);
+  pointer-events: auto;
+}
+
+/* Left-side stops: card goes to the right */
+.route-stop[data-side="left"] .stop-card {
+  left: calc(100% + 20px);
+  top: 50%;
+  transform: translate(-12px, -50%) scale(0.95);
+}
+.route-stop[data-side="left"].active .stop-card {
+  opacity: 1;
+  transform: translate(0, -50%) scale(1);
+  pointer-events: auto;
 }
 
 .stop-tag,
@@ -782,34 +878,111 @@ h1 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.28rem 0.68rem;
+  padding: 0.22rem 0.58rem;
   border-radius: 999px;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .stop-tag {
-  background: rgba(124, 58, 237, 0.12);
+  background: rgba(124, 58, 237, 0.15);
   color: var(--accent);
-  border: 1px solid rgba(124, 58, 237, 0.2);
-  margin-right: 0.45rem;
+  border: 1px solid rgba(124, 58, 237, 0.25);
+  margin-right: 0.35rem;
 }
 
 .stop-year {
-  background: rgba(6, 182, 212, 0.1);
+  background: rgba(6, 182, 212, 0.12);
   color: var(--accent2);
-  border: 1px solid rgba(6, 182, 212, 0.18);
+  border: 1px solid rgba(6, 182, 212, 0.2);
 }
 
-.route-stop h4 {
-  margin: 0.85rem 0 0.45rem;
-  font-size: 1.05rem;
+.stop-card h4 {
+  margin: 0.6rem 0 0.3rem;
+  font-size: 0.95rem;
 }
 
-.route-stop p {
+.stop-card p {
   color: var(--text2);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+/* === Bottom fade — road vanishes into distance === */
+.route-fade-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 180px;
+  background: linear-gradient(to bottom, transparent 0%, var(--bg) 100%);
+  z-index: 12;
+  pointer-events: none;
+}
+
+/* === Light theme === */
+[data-theme="light"] .mtn-bg rect { fill: url(#skyGrad); }
+[data-theme="light"] .route-mountain-scene {
+  background: linear-gradient(180deg, #c0d8f8, #a0c0f0);
+}
+[data-theme="light"] .mtn-layer.mtn-far path { fill: rgba(90, 130, 90, 0.3); }
+[data-theme="light"] .mtn-layer.mtn-mid path { fill: rgba(60, 110, 60, 0.35); }
+[data-theme="light"] .mtn-trees polygon { fill: rgba(30, 80, 30, 0.35); }
+[data-theme="light"] .road-path-glow { stroke: rgba(80, 60, 40, 0.08); }
+[data-theme="light"] .road-path-bg { stroke: rgba(100, 95, 85, 0.75); }
+[data-theme="light"] .road-path-dash { stroke: rgba(255, 255, 220, 0.85); }
+[data-theme="light"] .stop-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(245,245,255,0.98));
+  border-color: rgba(124, 58, 237, 0.12);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+}
+[data-theme="light"] .route-fade-bottom {
+  background: linear-gradient(to bottom, transparent 0%, var(--bg) 100%);
+}
+
+/* === Bus exhaust particles === */
+.bus-exhaust {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(150,150,180,0.4);
+  pointer-events: none;
+  z-index: 9;
+  animation: exhaustFade 0.8s ease-out forwards;
+}
+
+@keyframes exhaustFade {
+  0% { opacity: 0.5; transform: scale(1); }
+  100% { opacity: 0; transform: scale(2.5) translateY(-10px); }
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .stop-card {
+    width: 200px;
+    padding: 0.8rem 0.9rem;
+  }
+  .stop-card h4 { font-size: 0.85rem; }
+  .stop-card p { font-size: 0.75rem; }
+  .route-bus-wrap { width: 40px; height: 24px; }
+  .route-bus-icon { width: 40px; height: 24px; }
+}
+
+@media (max-width: 480px) {
+  .stop-card {
+    width: 160px;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.7rem;
+  }
+  .stop-card h4 { font-size: 0.78rem; }
+  .stop-card p { font-size: 0.68rem; }
+  .route-bus-wrap { width: 34px; height: 20px; }
+  .route-bus-icon { width: 34px; height: 20px; }
+  .route-stop[data-side="right"] .stop-card { right: calc(100% + 10px); }
+  .route-stop[data-side="left"] .stop-card { left: calc(100% + 10px); }
 }
 
 /* Tech Stack */
@@ -1533,146 +1706,210 @@ h1 {
   gap: 1.25rem;
 }
 
-.blog-card {
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
+/* ===== BLOGS — editorial row layout ===== */
+.blogs-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 2rem;
   border-radius: var(--radius-lg);
-  padding: 1.5rem;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+}
+
+.blog-card {
+  display: grid;
+  grid-template-columns: 3rem 1fr auto;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.35rem 1.5rem;
+  background: var(--glass);
   backdrop-filter: blur(12px);
   cursor: pointer;
-  transform-style: preserve-3d;
-  transition: all 0.4s ease;
+  transition: background 0.25s ease, padding-left 0.25s ease;
   position: relative;
-  overflow: hidden;
+  border-bottom: 1px solid var(--glass-border);
 }
 
-.blog-card::after {
-  content: 'Click to read';
-  position: absolute;
-  bottom: 1rem;
-  right: 1rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--accent);
-  opacity: 0;
-  transform: translateY(4px);
-  transition: all var(--transition);
-}
-
-.blog-card:hover::after {
-  opacity: 1;
-  transform: translateY(0);
-}
+.blog-card:last-child { border-bottom: none; }
 
 .blog-card:hover {
-  border-color: var(--glass-hover);
-  box-shadow: 0 16px 48px rgba(124, 58, 237, 0.12);
-  transform: perspective(1000px) translateY(-4px);
+  background: rgba(124, 58, 237, 0.06);
+  padding-left: 1.9rem;
 }
 
-.blog-card .blog-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
+.blog-num {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--accent);
+  opacity: 0.35;
+  font-variant-numeric: tabular-nums;
+  transition: opacity 0.25s;
+  min-width: 2.5rem;
+}
+
+.blog-card:hover .blog-num { opacity: 1; }
+
+.blog-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.blog-icon-wrap {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
   display: grid;
   place-items: center;
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
+  font-size: 1.35rem;
 }
 
-.blog-card h3 {
-  font-size: 1.1rem;
+.blog-text { min-width: 0; }
+
+.blog-text h3 {
+  font-size: 1rem;
   font-weight: 700;
+  margin-bottom: 0.3rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.blog-text p {
+  font-size: 0.85rem;
+  color: var(--text2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
   margin-bottom: 0.5rem;
 }
 
-.blog-card p {
-  font-size: 0.9rem;
-  color: var(--text2);
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.blog-card .blog-tags {
+.blog-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
-  margin-top: 1rem;
+  gap: 0.3rem;
 }
 
-.blog-card .blog-tag {
-  font-size: 0.7rem;
-  font-weight: 500;
-  padding: 0.2rem 0.5rem;
+.blog-tag {
+  font-size: 0.67rem;
+  font-weight: 600;
+  padding: 0.18rem 0.48rem;
   border-radius: 6px;
   background: rgba(6, 182, 212, 0.08);
   color: var(--accent2);
   border: 1px solid rgba(6, 182, 212, 0.15);
+  letter-spacing: 0.04em;
 }
 
-/* ===== BOOKS ===== */
-.books-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1.25rem;
-  margin-top: 2rem;
+.blog-arrow {
+  color: var(--text3);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  transition: color 0.25s, transform 0.25s;
 }
+
+.blog-card:hover .blog-arrow {
+  color: var(--accent);
+  transform: translateX(4px);
+}
+
+/* ===== BOOKS — horizontal scroll, book-style cards ===== */
+.books-grid {
+  display: flex;
+  gap: 1.1rem;
+  margin-top: 2rem;
+  overflow-x: auto;
+  padding-bottom: 0.75rem;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(124,58,237,0.3) transparent;
+}
+
+.books-grid::-webkit-scrollbar { height: 4px; }
+.books-grid::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.3); border-radius: 4px; }
 
 .book-card {
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  backdrop-filter: blur(12px);
-  transition: all 0.4s ease;
-  transform-style: preserve-3d;
+  flex: 0 0 240px;
+  scroll-snap-align: start;
   display: flex;
   flex-direction: column;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  text-decoration: none;
+  border: 1px solid var(--glass-border);
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+  position: relative;
 }
 
 .book-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 16px 40px rgba(124,58,237,0.16);
   border-color: var(--glass-hover);
-  transform: perspective(1000px) translateY(-4px);
-  box-shadow: 0 12px 36px rgba(124, 58, 237, 0.1);
+}
+
+.book-spine {
+  height: 5px;
+  background: var(--gradient);
+  width: 100%;
+}
+
+.book-cover {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1.1rem 1.1rem 0.75rem;
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .book-emoji {
-  font-size: 2rem;
-  margin-bottom: 0.75rem;
+  font-size: 2.2rem;
+  flex-shrink: 0;
 }
 
-.book-card h3 {
-  font-size: 1.05rem;
+.book-info h3 {
+  font-size: 0.95rem;
   font-weight: 700;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.2rem;
+  line-height: 1.3;
 }
 
-.book-card .book-author {
-  font-size: 0.82rem;
+.book-author {
+  font-size: 0.78rem;
   color: var(--text3);
-  margin-bottom: 0.6rem;
 }
 
-.book-card p {
-  font-size: 0.88rem;
-  color: var(--text2);
+.book-desc {
+  padding: 0.85rem 1.1rem 1rem;
+  display: flex;
+  flex-direction: column;
   flex: 1;
-  margin-bottom: 1rem;
+  gap: 0.75rem;
 }
 
-.book-card .book-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
+.book-desc p {
   font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--accent2);
-  transition: color var(--transition);
+  color: var(--text2);
+  line-height: 1.55;
+  flex: 1;
 }
 
-.book-card .book-link:hover { color: var(--accent); }
+.book-link {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent2);
+  letter-spacing: 0.03em;
+  transition: color 0.2s;
+}
+
+.book-card:hover .book-link { color: var(--accent); }
 
 /* ===== INTERVIEW ===== */
 .interview-note {
@@ -1743,6 +1980,34 @@ h1 {
   color: #10b981;
 }
 
+.interview-tag.failed {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.24);
+  color: #ef4444;
+}
+
+.interview-tag-group {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.failed-card {
+  border-color: rgba(239, 68, 68, 0.15) !important;
+}
+
+.failed-card::before {
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.1), transparent 70%) !important;
+}
+
+.failed-card .interview-header h3::after {
+  content: ' — Lesson Learned';
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text3);
+  margin-left: 0.4rem;
+}
+
 .company-note {
   margin-bottom: 1rem;
   color: var(--text2);
@@ -1779,87 +2044,65 @@ h1 {
   background: var(--accent2);
 }
 
-/* ===== MEMORY GALLERY ===== */
+/* ===== MEMORY GALLERY — uniform grid ===== */
 .memory-gallery {
   margin-top: 2rem;
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
-  grid-auto-rows: 90px;
 }
 
 .memory-shot {
-  grid-column: span 4;
-  grid-row: span 3;
   position: relative;
   overflow: hidden;
-  border-radius: 26px;
-  border: 1px solid rgba(124, 58, 237, 0.16);
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.03)),
-    rgba(255, 248, 240, 0.06);
+  border-radius: 20px;
+  border: 1px solid rgba(124, 58, 237, 0.14);
   cursor: pointer;
-  transform: translateY(0);
-  transition: transform 0.45s ease, border-color var(--transition), box-shadow var(--transition);
-  padding: 0.8rem 0.8rem 4.6rem;
+  aspect-ratio: 4 / 3;
+  transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
 }
 
-.memory-shot.tall {
-  grid-row: span 4;
-}
-
+/* Remove tall/wide overrides — all cells same size */
+.memory-shot.tall,
 .memory-shot.wide {
-  grid-column: span 8;
+  aspect-ratio: 4 / 3;
+  grid-column: unset;
+  grid-row: unset;
 }
 
 .memory-shot img {
   width: 100%;
-  height: calc(100% - 0.2rem);
-  object-fit: contain;
-  object-position: center;
-  transition: transform 0.7s ease, filter 0.7s ease;
-  filter: saturate(1.02);
-  border-radius: 18px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
-    rgba(3, 0, 20, 0.45);
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  transition: transform 0.55s ease, filter 0.55s ease;
+  display: block;
 }
 
+/* Gradient overlay for caption readability */
 .memory-shot::before {
   content: '';
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(180deg, rgba(5, 8, 20, 0.01), rgba(5, 8, 20, 0.38) 70%, rgba(5, 8, 20, 0.82)),
-    linear-gradient(135deg, rgba(124, 58, 237, 0.06), transparent 40%);
+  background: linear-gradient(
+    to bottom,
+    transparent 40%,
+    rgba(5, 5, 20, 0.72) 80%,
+    rgba(5, 5, 20, 0.92) 100%
+  );
   z-index: 1;
   pointer-events: none;
 }
 
+/* Shine sweep on hover */
 .memory-shot::after {
   content: '';
   position: absolute;
-  inset: -20% 55% -20% -30%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+  inset: -60% 55% -60% -30%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent);
   transform: rotate(12deg) translateX(-120%);
-  transition: transform 0.8s ease;
+  transition: transform 0.7s ease;
   z-index: 2;
-}
-
-.memory-shot:nth-child(odd) {
-  transform: rotate(-1.1deg);
-}
-
-.memory-shot:nth-child(even) {
-  transform: rotate(1.1deg);
-}
-
-.memory-shot:nth-child(3n) {
-  clip-path: polygon(0 0, 97% 0, 100% 14%, 100% 100%, 0 100%);
-}
-
-.memory-shot:nth-child(4n) {
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 4% 100%, 0 86%);
 }
 
 .memory-shot figcaption {
@@ -1868,37 +2111,48 @@ h1 {
   right: 0;
   bottom: 0;
   z-index: 3;
-  padding: 1.1rem 1.1rem 1rem;
+  padding: 0.85rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.28rem;
+  gap: 0.2rem;
+  transform: translateY(4px);
+  transition: transform 0.35s ease;
 }
 
 .memory-title {
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: #fff;
+  line-height: 1.3;
 }
 
 .memory-caption {
-  font-size: 0.86rem;
-  color: rgba(255, 255, 255, 0.82);
-  line-height: 1.55;
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .memory-shot:hover {
-  transform: translateY(-8px) rotate(0deg);
-  border-color: rgba(6, 182, 212, 0.25);
-  box-shadow: 0 18px 48px rgba(5, 8, 20, 0.28);
+  transform: translateY(-5px);
+  border-color: rgba(6, 182, 212, 0.3);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
 }
 
 .memory-shot:hover img {
-  transform: scale(1.06);
-  filter: saturate(1.08);
+  transform: scale(1.07);
+  filter: saturate(1.1) brightness(1.04);
 }
 
 .memory-shot:hover::after {
   transform: rotate(12deg) translateX(220%);
+}
+
+.memory-shot:hover figcaption {
+  transform: translateY(0);
 }
 
 .memory-modal-media {
@@ -2444,20 +2698,8 @@ h1 {
     grid-template-columns: 1fr;
   }
 
-  .route-road {
-    padding-left: 4.7rem;
-  }
-
   .memory-gallery {
     grid-template-columns: 1fr 1fr;
-    grid-auto-rows: 130px;
-  }
-
-  .memory-shot,
-  .memory-shot.wide,
-  .memory-shot.tall {
-    grid-column: span 1;
-    grid-row: span 2;
   }
 
   .projects-grid,
@@ -2492,43 +2734,8 @@ h1 {
     padding: 1.25rem;
   }
 
-  .route-road {
-    padding-left: 0;
-  }
-
-  .route-line {
-    left: 0.9rem;
-  }
-
-  .route-bus {
-    width: 3rem;
-    height: 3rem;
-    margin-left: 0.5rem;
-  }
-
-  .route-stop {
-    margin-left: 3.3rem;
-  }
-
-  .route-stop::before {
-    left: -2.7rem;
-    width: 1.7rem;
-  }
-
-  .route-stop::after {
-    left: -0.95rem;
-  }
-
   .memory-gallery {
     grid-template-columns: 1fr;
-    grid-auto-rows: 220px;
-  }
-
-  .memory-shot,
-  .memory-shot.wide,
-  .memory-shot.tall {
-    grid-column: auto;
-    grid-row: auto;
   }
 
   .modal-panel {
