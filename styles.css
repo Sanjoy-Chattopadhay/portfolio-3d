@@ -1557,10 +1557,22 @@ h1 {
   position: relative;
   overflow: hidden;
   border-radius: 20px;
-  border: 1px solid color-mix(in srgb, var(--project-accent) 20%, transparent);
+  /* Robust fallback first — uses --project-glow / --project-soft which are
+     already rgba values, so it works on every browser regardless of color-mix
+     support. Modern browsers refine this via the @supports block below. */
+  border: 1px solid var(--project-glow);
   background:
-    radial-gradient(circle at 20% 25%, color-mix(in srgb, var(--project-glow) 95%, transparent), transparent 42%),
-    linear-gradient(135deg, color-mix(in srgb, var(--project-soft) 88%, transparent), rgba(255, 255, 255, 0.02));
+    radial-gradient(circle at 20% 25%, var(--project-glow), transparent 42%),
+    linear-gradient(135deg, var(--project-soft), rgba(255, 255, 255, 0.02));
+}
+@supports (color: color-mix(in srgb, red, blue)) {
+  .project-visual,
+  .project-scene {
+    border: 1px solid color-mix(in srgb, var(--project-accent) 20%, transparent);
+    background:
+      radial-gradient(circle at 20% 25%, color-mix(in srgb, var(--project-glow) 95%, transparent), transparent 42%),
+      linear-gradient(135deg, color-mix(in srgb, var(--project-soft) 88%, transparent), rgba(255, 255, 255, 0.02));
+  }
 }
 
 .project-visual {
@@ -2096,6 +2108,120 @@ h1 {
 .scene-graph .n2 { left: 44%; top: 38%; animation-delay: 0.3s; }
 .scene-graph .n3 { left: 62%; top: 26%; animation-delay: 0.7s; }
 .scene-graph .n4 { left: 68%; top: 62%; animation-delay: 1s; }
+
+/* =========================================================
+   COLOR-MIX FALLBACKS for older mobile browsers
+   ---------------------------------------------------------
+   Older Android WebViews, in-app browsers, and Safari < 16.2
+   do not understand color-mix(). When a property's only value
+   uses color-mix and the browser can't parse it, the entire
+   declaration is dropped and the shape ends up invisible
+   (transparent background, no border, no glow).
+
+   This block re-declares the critical visual properties using
+   the rgba project-* variables directly, so the scenes still
+   render — slightly less subtle, but VISIBLE.
+   ========================================================= */
+@supports not (color: color-mix(in srgb, red, blue)) {
+  /* --- Containers --- */
+  .project-card { border-color: var(--project-accent); }
+
+  /* --- Scene container fallbacks (also handled inline above, repeated for safety) --- */
+  .project-visual, .project-scene {
+    border: 1px solid var(--project-glow);
+    background:
+      radial-gradient(circle at 20% 25%, var(--project-glow), transparent 42%),
+      linear-gradient(135deg, var(--project-soft), rgba(255, 255, 255, 0.02));
+  }
+
+  /* --- Generic catch-all for any span inside a project scene --- */
+  .project-visual span,
+  .project-scene span {
+    background-color: var(--project-soft);
+  }
+
+  /* --- Per-shape fallbacks for visibility-critical backgrounds/borders --- */
+  .scene-agents .v-orbit,
+  .scene-inheritance .v-orbit,
+  .scene-radar .v-ring {
+    border: 1px solid var(--project-accent);
+    background: transparent;
+  }
+  .scene-agents .v-node,
+  .scene-graph .v-node,
+  .scene-inheritance .v-core,
+  .scene-inheritance .v-heir {
+    background: var(--project-accent);
+  }
+  .scene-medical .v-wave {
+    background: var(--project-accent);
+  }
+  .scene-medical .v-beacon {
+    border: 1px solid var(--project-accent-2);
+    background: transparent;
+  }
+  .scene-chatbot .v-bubble {
+    background: var(--project-soft);
+    border: 1px solid var(--project-accent);
+  }
+  .scene-chatbot .v-dot { background: var(--project-accent-2); }
+  .scene-mcp .v-track {
+    background: var(--project-glow);
+  }
+  .scene-mcp .v-packet { background: var(--project-accent); }
+  .scene-chain .v-pill {
+    background: var(--project-soft);
+    border: 1px solid var(--project-accent);
+  }
+  .scene-chain .v-pulse { background: var(--project-accent-2); }
+  .scene-zk .v-shield {
+    background: var(--project-accent);
+    border: 1px solid var(--project-accent);
+  }
+  .scene-zk .v-cell { background: var(--project-accent); }
+  .scene-police .v-ledger {
+    background: var(--project-soft);
+    border: 1px solid var(--project-glow);
+  }
+  .scene-police .v-scan,
+  .scene-vision .v-scan {
+    background: var(--project-glow);
+  }
+  .scene-voting .v-bar,
+  .scene-finance .v-bar {
+    background: var(--project-accent);
+  }
+  .scene-voting .v-check {
+    border-left-color: var(--project-accent-2);
+    border-bottom-color: var(--project-accent-2);
+  }
+  .scene-diary .v-page {
+    background: var(--project-soft);
+    border: 1px solid var(--project-accent);
+  }
+  .scene-diary .v-ink { background: var(--project-accent); }
+  .scene-radar .v-sweep { background: var(--project-accent-2); }
+  .scene-radar .v-blip { background: var(--project-accent-2); }
+  .scene-movie .v-reel { border-color: var(--project-accent); }
+  .scene-movie .v-beam { background: var(--project-glow); }
+  .scene-movie .v-ticket,
+  .scene-travel .v-pin {
+    background: var(--project-accent);
+  }
+  .scene-vision .v-frame { border-color: var(--project-accent); background: transparent; }
+  .scene-vision .v-focus { border: 1px solid var(--project-accent-2); background: transparent; }
+  .scene-travel .v-route { border-top-color: var(--project-accent); }
+  .scene-travel .v-plane { background: var(--project-accent-2); }
+  .scene-finance .v-coin {
+    border: 2px solid var(--project-accent-2);
+    background: transparent;
+  }
+  .scene-cpu .v-lane {
+    background: var(--project-soft);
+    border: 1px solid var(--project-glow);
+  }
+  .scene-cpu .v-job { background: var(--project-accent); }
+  .scene-graph .v-edge { background: var(--project-glow); }
 }
 
 /* ===== BLOGS ===== */
