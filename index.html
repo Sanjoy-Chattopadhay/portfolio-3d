@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sanjoy Chattopadhyay | Portfolio</title>
-  <meta name="description" content="Portfolio of Sanjoy Chattopadhyay — AI/ML Engineer, Full-Stack Developer, Blockchain Builder. M.Tech CS @ NIT Durgapur." />
+  <title>Sanjoy Chattopadhyay | Assistant Professor, CSE — PSIT Kanpur</title>
+  <meta name="description" content="Sanjoy Chattopadhyay — Assistant Professor, Computer Science & Engineering, PSIT Kanpur. AI / ML, Agent Systems, Blockchain. Teaching, building, and mentoring students." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -13,29 +13,81 @@
 <body>
   <canvas id="bg-canvas"></canvas>
 
-  <!-- Floating 3D shapes -->
+  <!-- ===== ANIMATED SVG DEFS (reused glow + gradients) ===== -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="teal-grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#8CDBE3"/>
+        <stop offset="35%" stop-color="#BFFFFA"/>
+        <stop offset="70%" stop-color="#28A89A"/>
+        <stop offset="100%" stop-color="#5DE5D5"/>
+      </linearGradient>
+      <radialGradient id="teal-glow-rad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#8CDBE3" stop-opacity="0.55"/>
+        <stop offset="60%" stop-color="#5DE5D5" stop-opacity="0.2"/>
+        <stop offset="100%" stop-color="#5DE5D5" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="neon-glow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="2.5" result="blur"/>
+        <feMerge>
+          <feMergeNode in="blur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+      <filter id="soft-glow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="1.2" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+  </svg>
+
+  <!-- Floating 3D SVG decorations -->
   <div class="scene-shapes" aria-hidden="true">
-    <div class="float-shape shape-cube">
-      <div class="cube-3d"><span></span><span></span><span></span><span></span><span></span><span></span></div>
-    </div>
-    <div class="float-shape shape-ring"></div>
-    <div class="float-shape shape-ring2"></div>
-    <div class="float-shape shape-dot dot1"></div>
-    <div class="float-shape shape-dot dot2"></div>
-    <div class="float-shape shape-dot dot3"></div>
+    <svg class="deco-svg deco-iso" viewBox="-50 -50 100 100">
+      <g class="deco-rotate" filter="url(#soft-glow)" stroke="url(#teal-grad)" stroke-width="0.6" fill="none">
+        <path d="M0,-30 L26,-15 L26,15 L0,30 L-26,15 L-26,-15 Z"/>
+        <path d="M0,-30 L0,0 M-26,-15 L0,0 M26,-15 L0,0"/>
+        <path d="M0,30 L0,0 M-26,15 L0,0 M26,15 L0,0" opacity="0.5"/>
+      </g>
+    </svg>
+    <svg class="deco-svg deco-ring" viewBox="-60 -60 120 120">
+      <g class="deco-spin" stroke="url(#teal-grad)" stroke-width="0.8" fill="none" filter="url(#soft-glow)">
+        <circle r="50" opacity="0.6"/>
+        <ellipse rx="50" ry="18"/>
+        <ellipse rx="50" ry="18" transform="rotate(60)"/>
+        <ellipse rx="50" ry="18" transform="rotate(120)"/>
+      </g>
+    </svg>
+    <svg class="deco-svg deco-tri" viewBox="-40 -40 80 80">
+      <g class="deco-pulse" stroke="#8CDBE3" stroke-width="0.8" fill="none" filter="url(#soft-glow)">
+        <polygon points="0,-30 26,15 -26,15"/>
+        <polygon points="0,30 -26,-15 26,-15" opacity="0.5"/>
+      </g>
+    </svg>
+    <span class="deco-dot d1"></span>
+    <span class="deco-dot d2"></span>
+    <span class="deco-dot d3"></span>
+    <span class="deco-dot d4"></span>
+    <span class="deco-dot d5"></span>
   </div>
 
   <!-- Header -->
   <header class="header glass">
-    <a class="logo" href="#top">SC</a>
+    <a class="logo-wrap" href="#top">
+      <span class="logo">SC</span>
+      <span class="logo-meta">
+        <span class="logo-name">Sanjoy Chattopadhyay</span>
+        <span class="logo-role">Assistant Professor · CSE · PSIT Kanpur</span>
+      </span>
+    </a>
     <nav class="nav" id="nav">
       <a href="#about">About</a>
-      <a href="#moments">Moments</a>
+      <a href="#teaching">Teaching</a>
       <a href="#projects">Projects</a>
-      <a href="#blogs">Blogs</a>
-      <a href="#books">Books</a>
-      <a href="#interview">Interview</a>
-      <a href="#gallery">Gallery</a>
+      <a href="#blogs">For Students</a>
+      <a href="#books">Reading</a>
+      <a href="#interview">Interviews</a>
+      <a href="#gallery">Moments</a>
       <a href="#connect">Connect</a>
     </nav>
     <div class="header-actions">
@@ -53,34 +105,72 @@
     <!-- Hero -->
     <section class="hero anim-in">
       <div class="hero-content">
-        <!-- <div class="badge-row">
-          <span class="badge">Engineer</span>
-          <span class="badge">Builder</span>
+        <div class="badge-row">
+          <span class="badge">Assistant Professor</span>
           <span class="badge">Researcher</span>
-        </div> -->
-        <p class="hero-kicker">Hi, I'm Sanjoy Chattopadhyay.</p>
-        <h1>I make weird ideas<br/>behave like <span class="gradient-text">working software</span>.</h1>
-        <p class="hero-sub">AI + BACKEND + CHAOS — not always in that order.</p>
-        <p class="hero-desc">Mostly building with AI, backend systems, a little blockchain, and a healthy amount of curiosity, debugging, and "let me just try one more thing."</p>
+          <span class="badge">Builder</span>
+        </div>
+        <p class="hero-kicker">Department of Computer Science &amp; Engineering · PSIT Kanpur</p>
+        <h1>Teaching systems that <span class="gradient-text">think, learn, and ship</span>.</h1>
+        <p class="hero-sub">AI / ML &middot; Agent Systems &middot; Blockchain &middot; Mentoring CS students</p>
+        <p class="hero-desc">I teach the engineering behind real AI systems — from clean data structures up to multi-agent workflows. Outside the classroom I build, research, and help students turn course ideas into working software they can show.</p>
         <div class="hero-btns">
+          <a href="#teaching" class="btn btn-primary">Courses I Teach</a>
+          <a href="#projects" class="btn">See Projects</a>
           <a href="https://github.com/Sanjoy-Chattopadhay" target="_blank" rel="noreferrer" class="btn">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
             GitHub
           </a>
-          <a href="https://www.linkedin.com/in/sanjoy-chattopadhyay-390b3a1a6/" target="_blank" rel="noreferrer" class="btn">LinkedIn</a>
-          <a href="Gen_AI.pdf" target="_blank" rel="noreferrer" class="btn btn-primary">Resume</a>
+          <a href="Gen_AI.pdf" target="_blank" rel="noreferrer" class="btn">Resume</a>
         </div>
       </div>
-      <div class="hero-visual">
-        <div class="hero-sphere"></div>
-        <div class="orbit orbit1"><div class="orbit-dot"></div></div>
-        <div class="orbit orbit2"><div class="orbit-dot"></div></div>
-        <div class="orbit orbit3"><div class="orbit-dot"></div></div>
+      <div class="hero-visual" id="hero-visual">
+        <!-- Faux 3D animated SVG: wireframe icosahedron + orbits + drifting dots -->
+        <svg class="hero-svg" viewBox="-110 -110 220 220" aria-hidden="true">
+          <!-- background glow -->
+          <circle r="90" fill="url(#teal-glow-rad)" class="halo-pulse"/>
+
+          <!-- outer slow-spinning ring system -->
+          <g class="spin-slow" filter="url(#soft-glow)" stroke="url(#teal-grad)" stroke-width="0.7" fill="none">
+            <circle r="98" opacity="0.35" stroke-dasharray="2 4"/>
+            <ellipse rx="98" ry="32" opacity="0.4"/>
+            <ellipse rx="98" ry="32" transform="rotate(60)" opacity="0.35"/>
+            <ellipse rx="98" ry="32" transform="rotate(120)" opacity="0.3"/>
+          </g>
+
+          <!-- mid wireframe icosahedron -->
+          <g class="spin-mid" filter="url(#neon-glow)" stroke="url(#teal-grad)" stroke-width="1.1" fill="none">
+            <polygon points="0,-75 71,-23 44,61 -44,61 -71,-23"/>
+            <polygon points="0,75 71,23 44,-61 -44,-61 -71,23" opacity="0.6"/>
+            <line x1="0" y1="-75" x2="0" y2="75" opacity="0.4"/>
+            <line x1="-71" y1="-23" x2="71" y2="23" opacity="0.35"/>
+            <line x1="71" y1="-23" x2="-71" y2="23" opacity="0.35"/>
+            <line x1="-44" y1="61" x2="44" y2="-61" opacity="0.3"/>
+            <line x1="44" y1="61" x2="-44" y2="-61" opacity="0.3"/>
+          </g>
+
+          <!-- inner counter-spin diamond + dot -->
+          <g class="spin-fast-reverse" filter="url(#neon-glow)">
+            <polygon points="0,-35 35,0 0,35 -35,0" fill="none" stroke="#8CDBE3" stroke-width="1.2"/>
+            <circle r="4" fill="#8CDBE3"/>
+          </g>
+
+          <!-- orbiting satellites -->
+          <g class="orbit-track-1">
+            <circle cx="78" cy="0" r="3.5" fill="#8CDBE3" filter="url(#neon-glow)"/>
+          </g>
+          <g class="orbit-track-2">
+            <circle cx="0" cy="92" r="2.5" fill="#BFFFFA" filter="url(#neon-glow)"/>
+          </g>
+          <g class="orbit-track-3">
+            <circle cx="-85" cy="0" r="2" fill="#5DE5D5" filter="url(#soft-glow)"/>
+          </g>
+        </svg>
       </div>
     </section>
 
     <!-- About -->
-    <section id="about" class="section anim-in">
+    <section id="about" class="section anim-in section-bg">
       <h2 class="section-title"><span class="title-num">01</span> About</h2>
       <div class="about-grid">
         <!-- Education -->
@@ -123,34 +213,39 @@
           </div>
           <h3>Experience</h3>
           <div class="timeline">
+            <div class="timeline-item current">
+              <span class="tl-year">2026 — Present</span>
+              <h4>Assistant Professor, CSE</h4>
+              <p>Pranveer Singh Institute of Technology (PSIT), Kanpur. Teaching core CS and applied AI to undergraduate students, advising projects, and building a small research stream around agent systems and ML for real-world problems.</p>
+              <span class="tl-badge">Current role</span>
+            </div>
             <div class="timeline-item">
               <span class="tl-year">2025</span>
               <h4>Data Science Intern, Indian Army</h4>
               <p>Built predictive maintenance ideas around military vehicle health, analytics, and field-ready dashboards at Panagarh Military Station.</p>
-              <span class="tl-badge">Real-world impact</span>
+              <span class="tl-badge">Applied research</span>
             </div>
             <div class="timeline-item">
               <span class="tl-year">2022 — 2023</span>
               <h4>Graduate Engineer Trainee, HCLTech</h4>
-              <p>Worked on backend systems, enterprise workflows, microservices, and the kind of bugs that teach patience better than any motivational quote.</p>
-              <span class="tl-badge">Industry chapter</span>
+              <p>Backend systems, enterprise workflows, microservices, and the kind of production bugs that quietly teach you what real engineering feels like.</p>
+              <span class="tl-badge">Industry</span>
             </div>
           </div>
         </div>
-        <!-- Achievements -->
+        <!-- Recognitions -->
         <div class="glass-card card-3d full-width story-card">
           <div class="card-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
           </div>
-          <h3>Things I Somehow Pulled Off</h3>
+          <h3>Recognitions &amp; Milestones</h3>
           <ul class="achievement-list">
-            <li><strong>GATE 2024 CS</strong> — managed to negotiate a 97.18 percentile with the exam gods</li>
-            <li><strong>Indian Army Innovation Contest 2025</strong> — reached Top 20 nationally, which still sounds made up when I say it out loud</li>
-            <li><strong>Ex-SDE at HCLTech</strong> — spent 2+ years in the software mines and came back with stories</li>
-            <li><strong>67+ Open Source Projects</strong> — my GitHub is basically a digital hostel room, but productive</li>
-            <li><strong>CodeChef</strong> — solved 74 problems across 15 contests and definitely argued with the compiler more than once</li>
-            <li><strong>GeeksforGeeks</strong> — published DS/Algo articles after overthinking arrays, trees, and life</li>
-            <li><strong>LeetCode</strong> — got weirdly comfortable with bit manipulation and binary search at suspicious hours</li>
+            <li><strong>GATE 2024 (CS)</strong> &mdash; 97.18 percentile, the gateway that opened higher studies and research.</li>
+            <li><strong>Indian Army Innovation Contest 2025</strong> &mdash; reached the Top 20 nationally for the Army Medical RAG Chatbot.</li>
+            <li><strong>Ex-SDE, HCLTech</strong> &mdash; 2+ years across backend, enterprise systems, and production engineering.</li>
+            <li><strong>67+ Open Source Projects</strong> &mdash; an active GitHub presence across AI, blockchain, and full-stack work.</li>
+            <li><strong>Published Author</strong> &mdash; GeeksforGeeks articles on data structures and algorithms used by learners across India.</li>
+            <li><strong>Problem Solving</strong> &mdash; consistent practice across LeetCode and CodeChef while preparing students for the same.</li>
           </ul>
         </div>
         <!-- Tech Stack -->
@@ -195,8 +290,89 @@
       </div>
     </section>
 
+    <!-- Teaching & Research -->
+    <section id="teaching" class="section anim-in section-bg">
+      <h2 class="section-title"><span class="title-num">02</span> Teaching &amp; Research</h2>
+      <p class="section-sub">What I teach, what I work on, and how my classroom connects to real software engineering.</p>
+
+      <div class="teaching-grid">
+        <article class="glass-card card-3d course-card">
+          <div class="course-code">CS · Core</div>
+          <h3>Data Structures &amp; Algorithms</h3>
+          <p>From arrays and recursion to graphs, dynamic programming, and complexity analysis. Taught with a practical, interview-aware lens so students leave with working intuition, not just theory.</p>
+          <ul class="course-list">
+            <li>Pattern-based problem solving</li>
+            <li>Time &amp; space complexity reasoning</li>
+            <li>From brute force to optimal, step by step</li>
+          </ul>
+        </article>
+
+        <article class="glass-card card-3d course-card">
+          <div class="course-code">CS · Applied AI</div>
+          <h3>Machine Learning &amp; AI</h3>
+          <p>Classical ML through modern LLMs and agent systems. Students build, evaluate, and ship small AI systems instead of just running notebooks. Strong emphasis on the engineering around the model.</p>
+          <ul class="course-list">
+            <li>Supervised, unsupervised &amp; deep learning fundamentals</li>
+            <li>Transformers, RAG, and LangChain / LangGraph agents</li>
+            <li>Evaluation, reliability, and responsible AI</li>
+          </ul>
+        </article>
+
+        <article class="glass-card card-3d research-card full-width">
+          <div class="card-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </div>
+          <h3>Research Interests</h3>
+          <div class="research-grid">
+            <div class="research-area">
+              <h4>AI Agents &amp; LLM Systems</h4>
+              <p>Designing multi-agent workflows with memory, tool use, and evaluation — moving LLMs from demos to dependable systems.</p>
+            </div>
+            <div class="research-area">
+              <h4>Applied Machine Learning</h4>
+              <p>Predictive analytics, computer vision, and grounded retrieval-augmented systems for real-world domains.</p>
+            </div>
+            <div class="research-area">
+              <h4>Blockchain &amp; ZK Verification</h4>
+              <p>Privacy-preserving verification using zero-knowledge proofs over knowledge graphs and on-chain inheritance systems.</p>
+            </div>
+            <div class="research-area">
+              <h4>Student Research Projects</h4>
+              <p>Mentoring undergraduates from idea to deployable artifact — the kind of work that builds confidence and a portfolio.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="glass-card card-3d advising-card full-width">
+          <h3>How I Work With Students</h3>
+          <div class="advising-grid">
+            <div class="advise-step">
+              <span class="advise-num">01</span>
+              <h4>Start with a real problem</h4>
+              <p>We pick something you actually want to solve, not a textbook clone. The friction makes the learning stick.</p>
+            </div>
+            <div class="advise-step">
+              <span class="advise-num">02</span>
+              <h4>Build the smallest version</h4>
+              <p>A working v1 in days, not weeks. Get to running code first — the architecture conversation happens after.</p>
+            </div>
+            <div class="advise-step">
+              <span class="advise-num">03</span>
+              <h4>Iterate with measurements</h4>
+              <p>Define one metric. Measure it weekly. Decisions become data-driven instead of opinion-driven.</p>
+            </div>
+            <div class="advise-step">
+              <span class="advise-num">04</span>
+              <h4>Ship and explain it</h4>
+              <p>Deploy it, write the README, present it. The students who can explain their work clearly are the ones who get hired.</p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
     <!-- Projects -->
-    <section id="projects" class="section anim-in">
+    <section id="projects" class="section anim-in section-bg">
       <h2 class="section-title"><span class="title-num">03</span> Projects</h2>
       <p class="section-sub">Built from real-world problems. Click any project for full details.</p>
       <div class="filter-bar">
@@ -210,21 +386,69 @@
       <div id="projects-grid" class="projects-grid"></div>
     </section>
 
-    <!-- Blogs -->
-    <section id="blogs" class="section anim-in">
-      <h2 class="section-title"><span class="title-num">04</span> Blogs & Student Resources</h2>
-      <p class="section-sub">Guides, reflections, and curated resources for students and builders.</p>
+    <!-- Blogs / For Students -->
+    <section id="blogs" class="section anim-in section-bg">
+      <div class="for-students-hero">
+        <div class="for-students-copy">
+          <h2 class="section-title"><span class="title-num">04</span> For Students</h2>
+          <p class="section-sub">Notes, guides, and curated resources I share with my students &mdash; from solving real problems to working with modern AI agents.</p>
+        </div>
+        <!-- Opening laptop SVG illustration -->
+        <svg class="laptop-svg" viewBox="0 0 220 160" aria-hidden="true">
+          <!-- Laptop base -->
+          <g class="laptop-base">
+            <path d="M20 138 L200 138 L210 150 L10 150 Z" fill="#11141A" stroke="#28A89A" stroke-width="1.2"/>
+            <ellipse cx="110" cy="150" rx="6" ry="1.2" fill="#28A89A" opacity="0.6"/>
+          </g>
+          <!-- Laptop lid (opens) -->
+          <g class="laptop-lid">
+            <!-- screen frame -->
+            <rect x="34" y="20" width="152" height="118" rx="6" fill="#0a0d12" stroke="#5DE5D5" stroke-width="1.4"/>
+            <!-- screen content (code-editor feel) -->
+            <rect x="40" y="26" width="140" height="106" rx="3" fill="#11141A"/>
+            <!-- top bar -->
+            <rect x="40" y="26" width="140" height="10" fill="#1a1f26"/>
+            <circle cx="46"  cy="31" r="1.5" fill="#ff6b6b"/>
+            <circle cx="52" cy="31" r="1.5" fill="#fbbf24"/>
+            <circle cx="58" cy="31" r="1.5" fill="#5DE5D5"/>
+            <!-- code lines -->
+            <g class="laptop-code">
+              <rect x="46" y="44" width="38" height="2" rx="1" fill="#5DE5D5"/>
+              <rect x="88" y="44" width="22" height="2" rx="1" fill="#8CDBE3"/>
+              <rect x="46" y="52" width="56" height="2" rx="1" fill="#94A4AC"/>
+              <rect x="52" y="60" width="48" height="2" rx="1" fill="#BFFFFA"/>
+              <rect x="52" y="68" width="64" height="2" rx="1" fill="#28A89A"/>
+              <rect x="46" y="76" width="30" height="2" rx="1" fill="#5DE5D5"/>
+              <rect x="46" y="88" width="42" height="2" rx="1" fill="#8CDBE3"/>
+              <rect x="52" y="96" width="58" height="2" rx="1" fill="#94A4AC"/>
+              <rect x="52" y="104" width="40" height="2" rx="1" fill="#BFFFFA"/>
+              <rect x="46" y="116" width="26" height="2" rx="1" fill="#5DE5D5"/>
+            </g>
+            <!-- cursor blink -->
+            <rect class="laptop-cursor" x="120" y="116" width="6" height="2" fill="#5DE5D5"/>
+            <!-- screen reflection -->
+            <path d="M40 26 L72 26 L52 132 L40 132 Z" fill="url(#screen-reflect)" opacity="0.18"/>
+          </g>
+          <defs>
+            <linearGradient id="screen-reflect" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#BFFFFA"/>
+              <stop offset="100%" stop-color="#5DE5D5" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
       <div id="blogs-grid" class="blogs-grid"></div>
     </section>
 
     <!-- Books -->
-    <section id="books" class="section anim-in">
-      <h2 class="section-title"><span class="title-num">05</span> Books That Shape My Thinking</h2>
+    <section id="books" class="section anim-in section-bg">
+      <h2 class="section-title"><span class="title-num">05</span> Books I Recommend</h2>
+      <p class="section-sub">The books that have shaped how I teach, think, and build.</p>
       <div id="books-grid" class="books-grid"></div>
     </section>
 
     <!-- Interview -->
-    <section id="interview" class="section anim-in">
+    <section id="interview" class="section anim-in section-bg">
       <h2 class="section-title"><span class="title-num">06</span> Interview Journeys</h2>
       <p class="section-sub">A memory-based snapshot of the rounds I cleared, the DSA themes I handled, and the habits that kept saving me.</p>
       <div class="glass-card interview-note">
@@ -429,9 +653,9 @@
     </section>
 
     <!-- Good Memories -->
-    <section id="gallery" class="section anim-in">
-      <h2 class="section-title"><span class="title-num">07</span> Good Memories I Always Want to Keep With Me</h2>
-      <p class="section-sub">A few frames I never want life to auto-delete.</p>
+    <section id="gallery" class="section anim-in section-bg">
+      <h2 class="section-title"><span class="title-num">07</span> Moments That Shaped The Journey</h2>
+      <p class="section-sub">A few frames from the road that led to teaching &mdash; the people, places, and milestones I keep close.</p>
       <div class="memory-gallery">
         <figure class="memory-shot tall" data-image="images/byke_trip_with_friends.jpg" data-title="Bike Trip With Friends" data-caption="The kind of road where the destination mattered less than the laughter between stops.">
           <img src="images/byke_trip_with_friends.jpg" alt="Bike trip with friends" loading="lazy" />
@@ -500,9 +724,9 @@
     </section>
 
     <!-- Connect -->
-    <section id="connect" class="section anim-in">
+    <section id="connect" class="section anim-in section-bg">
       <h2 class="section-title"><span class="title-num">08</span> Connect</h2>
-      <p class="section-sub">Open for collaborations, research work, and AI/backend engineering opportunities.</p>
+      <p class="section-sub">Open to research collaborations, student mentoring, talks, and applied AI projects.</p>
       <div class="connect-grid">
         <a href="mailto:chattopadhyaysanjoy18@gmail.com" class="connect-card glass-card card-3d">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
@@ -525,7 +749,7 @@
   </main>
 
   <footer class="footer">
-    <p>Built with passion, code, and Three.js</p>
+    <p>Built with passion, code, and a healthy dose of debugging.</p>
     <p>&copy; <span id="year"></span> Sanjoy Chattopadhyay</p>
   </footer>
 
