@@ -305,7 +305,7 @@ function setTheme(theme) {
   if (window.updateThreeColors) window.updateThreeColors();
 }
 
-themeToggle?.addEventListener('click', () => {
+if (themeToggle) themeToggle.addEventListener('click', () => {
   setTheme(root.dataset.theme === 'dark' ? 'light' : 'dark');
 });
 
@@ -316,20 +316,29 @@ if (saved) setTheme(saved);
 // ===== MOBILE MENU =====
 const menuToggle = document.getElementById('menu-toggle');
 const nav = document.getElementById('nav');
-menuToggle?.addEventListener('click', () => {
+if (menuToggle) menuToggle.addEventListener('click', () => {
   nav.classList.toggle('open');
 });
 // Close on link click
-nav?.querySelectorAll('a').forEach(a => {
+if (nav) nav.querySelectorAll('a').forEach(a => {
   a.addEventListener('click', () => nav.classList.remove('open'));
 });
 
 // ===== SCROLL REVEAL =====
+// Guarded: on browsers without IntersectionObserver every section must
+// still become visible, otherwise the whole page stays at opacity 0.
 const animNodes = document.querySelectorAll('.anim-in');
-const revealObserver = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.1 });
-animNodes.forEach(n => revealObserver.observe(n));
+if ('IntersectionObserver' in window) {
+  // threshold 0 (not 0.1): on phones a single-column section can be many
+  // screens tall, so 10% of it never fits the viewport and the section
+  // would stay invisible. Fire as soon as it pokes into view instead.
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0, rootMargin: '0px 0px -8% 0px' });
+  animNodes.forEach(n => revealObserver.observe(n));
+} else {
+  animNodes.forEach(n => n.classList.add('visible'));
+}
 
 // ===== LIFE ROUTE — VERTICAL MOUNTAIN ROAD BUS ANIMATION =====
 (function initLifeRoute() {
@@ -533,8 +542,8 @@ function enableTilt(selector) {
 // ===== MODAL =====
 const modal = document.getElementById('modal');
 const modalBody = document.getElementById('modal-body');
-const modalCloseBtn = modal?.querySelector('.modal-close');
-const modalBackdrop = modal?.querySelector('.modal-backdrop');
+const modalCloseBtn = modal ? modal.querySelector('.modal-close') : null;
+const modalBackdrop = modal ? modal.querySelector('.modal-backdrop') : null;
 
 function openModal(html) {
   modalBody.innerHTML = html;
@@ -550,8 +559,8 @@ function closeModal() {
   setTimeout(() => { modalBody.innerHTML = ''; }, 350);
 }
 
-modalCloseBtn?.addEventListener('click', closeModal);
-modalBackdrop?.addEventListener('click', closeModal);
+if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeModal);
+if (modalBackdrop) modalBackdrop.addEventListener('click', closeModal);
 window.addEventListener('keydown', e => {
   if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
 });
@@ -1796,8 +1805,9 @@ function initMemoryGallery() {
 }
 
 // ===== INIT =====
-renderProjects();
-renderBlogs();
-renderBooks();
-initMemoryGallery();
+// Each init runs isolated — if one throws on an older browser the rest of
+// the page still renders instead of going blank.
+[renderProjects, renderBlogs, renderBooks, initMemoryGallery].forEach(fn => {
+  try { fn(); } catch (err) { console.error('init failed:', fn.name, err); }
+});
 document.getElementById('year').textContent = new Date().getFullYear();
