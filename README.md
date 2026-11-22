@@ -13,7 +13,7 @@ Built with plain **HTML, CSS, and JavaScript** — no frameworks, no build step.
 | # | Section | What's there |
 |---|---------|--------------|
 | 01 | **About** | Education, full experience timeline, recognitions, tech stack |
-| 02 | **Teaching & Research** | Courses taught (DSA, ML/AI), research interests, how I mentor students |
+| 02 | **Teaching & Research** | Courses taught (DSA, ML/AI), research interests, publications, how I mentor students |
 | 03 | **Projects** | 17 filterable cards (AI & GenAI, Blockchain, Full-Stack, ML & Data, Systems), each with a unique animated scene and a modal detail view |
 | 04 | **For Students** | Notes & guides — real-problem projects, motivation, AI agents, curated free resources |
 | 05 | **Books I Recommend** | Interactive 3D bookshelf — hover to pull a book out, click to open it with a page-flip animation |
@@ -25,7 +25,9 @@ Built with plain **HTML, CSS, and JavaScript** — no frameworks, no build step.
 
 ## Key Features
 
-- **Three.js particle starfield** — mouse-responsive 3D background with floating wireframe shapes
+- **Scroll-driven 3D scene** — one Three.js object (27 charcoal blocks with teal edges and a single coral block) sits behind the glass cards and rearranges itself as you scroll: data cube → exploded view → layered stack → blockchain → neural network → helix → bookshelf → staircase → sphere → cube. Scroll position drives the morph, so it plays like a video you scrub; reduced-motion users get a static object that switches without gliding
+- **Charcoal + muted teal + soft coral palette** — teal for actions and structure, coral only for highlights, hairlines instead of glows
+- **Hero stats** — GATE percentile, projects shipped, latest paper
 - **Seamless "floating in space" sections** — feathered background tints, one consistent divider pattern, no boxed borders
 - **3D bookshelf** — pull-out book spines and an SVG page-flip opening animation
 - **Filterable projects** with per-project animated motion scenes
@@ -42,7 +44,7 @@ Built with plain **HTML, CSS, and JavaScript** — no frameworks, no build step.
 |------|---------|
 | `index.html` | All page structure and static content |
 | `styles.css` | Theme variables, layout, animations, responsive rules |
-| `script.js` | Three.js background, dynamic rendering (projects / blogs / books), modals, scroll reveal |
+| `script.js` | Scroll-driven Three.js scene, dynamic rendering (projects / blogs / books), modals, scroll reveal |
 | `images/` | Gallery photos |
 | `chatbot.js` | Optional AI chat widget (currently **not loaded** — see below) |
 | `worker/` | Cloudflare Worker backend for the chatbot + setup guide |

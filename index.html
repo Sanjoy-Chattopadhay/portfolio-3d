@@ -14,21 +14,24 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <canvas id="bg-canvas"></canvas>
+  <!-- Background: a soft static light for the glass to pick up, then the
+       scroll-driven 3D scene (initScrollScene in script.js) -->
+  <div class="bg-ambient" aria-hidden="true"></div>
+  <canvas id="bg-canvas" aria-hidden="true"></canvas>
 
   <!-- ===== ANIMATED SVG DEFS (reused glow + gradients) ===== -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
       <linearGradient id="teal-grad" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#8CDBE3"/>
-        <stop offset="35%" stop-color="#BFFFFA"/>
-        <stop offset="70%" stop-color="#28A89A"/>
-        <stop offset="100%" stop-color="#5DE5D5"/>
+        <stop offset="0%" stop-color="#8FBEBA"/>
+        <stop offset="35%" stop-color="#CFE4E1"/>
+        <stop offset="70%" stop-color="#3B7A75"/>
+        <stop offset="100%" stop-color="#5F9E99"/>
       </linearGradient>
       <radialGradient id="teal-glow-rad" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stop-color="#8CDBE3" stop-opacity="0.55"/>
-        <stop offset="60%" stop-color="#5DE5D5" stop-opacity="0.2"/>
-        <stop offset="100%" stop-color="#5DE5D5" stop-opacity="0"/>
+        <stop offset="0%" stop-color="#8FBEBA" stop-opacity="0.55"/>
+        <stop offset="60%" stop-color="#5F9E99" stop-opacity="0.2"/>
+        <stop offset="100%" stop-color="#5F9E99" stop-opacity="0"/>
       </radialGradient>
       <filter id="neon-glow" x="-50%" y="-50%" width="200%" height="200%">
         <feGaussianBlur stdDeviation="2.5" result="blur"/>
@@ -43,36 +46,6 @@
       </filter>
     </defs>
   </svg>
-
-  <!-- Floating 3D SVG decorations -->
-  <div class="scene-shapes" aria-hidden="true">
-    <svg class="deco-svg deco-iso" viewBox="-50 -50 100 100">
-      <g class="deco-rotate" filter="url(#soft-glow)" stroke="url(#teal-grad)" stroke-width="0.6" fill="none">
-        <path d="M0,-30 L26,-15 L26,15 L0,30 L-26,15 L-26,-15 Z"/>
-        <path d="M0,-30 L0,0 M-26,-15 L0,0 M26,-15 L0,0"/>
-        <path d="M0,30 L0,0 M-26,15 L0,0 M26,15 L0,0" opacity="0.5"/>
-      </g>
-    </svg>
-    <svg class="deco-svg deco-ring" viewBox="-60 -60 120 120">
-      <g class="deco-spin" stroke="url(#teal-grad)" stroke-width="0.8" fill="none" filter="url(#soft-glow)">
-        <circle r="50" opacity="0.6"/>
-        <ellipse rx="50" ry="18"/>
-        <ellipse rx="50" ry="18" transform="rotate(60)"/>
-        <ellipse rx="50" ry="18" transform="rotate(120)"/>
-      </g>
-    </svg>
-    <svg class="deco-svg deco-tri" viewBox="-40 -40 80 80">
-      <g class="deco-pulse" stroke="#8CDBE3" stroke-width="0.8" fill="none" filter="url(#soft-glow)">
-        <polygon points="0,-30 26,15 -26,15"/>
-        <polygon points="0,30 -26,-15 26,-15" opacity="0.5"/>
-      </g>
-    </svg>
-    <span class="deco-dot d1"></span>
-    <span class="deco-dot d2"></span>
-    <span class="deco-dot d3"></span>
-    <span class="deco-dot d4"></span>
-    <span class="deco-dot d5"></span>
-  </div>
 
   <!-- Header -->
   <header class="header glass">
@@ -126,50 +99,24 @@
           </a>
           <a href="Gen_AI.pdf" target="_blank" rel="noreferrer" class="btn">Resume</a>
         </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span class="hs-label">GATE CS 2024</span>
+            <span class="hs-value">97.18<small>percentile</small></span>
+          </div>
+          <div class="hero-stat">
+            <span class="hs-label">Projects shipped</span>
+            <span class="hs-value" id="stat-projects">17</span>
+          </div>
+          <a class="hero-stat hero-stat-link" href="#publications">
+            <span class="hs-label">Latest paper</span>
+            <span class="hs-value">EACE<small>2026 · accepted</small></span>
+          </a>
+        </div>
       </div>
-      <div class="hero-visual" id="hero-visual">
-        <!-- Faux 3D animated SVG: wireframe icosahedron + orbits + drifting dots -->
-        <svg class="hero-svg" viewBox="-110 -110 220 220" aria-hidden="true">
-          <!-- background glow -->
-          <circle r="90" fill="url(#teal-glow-rad)" class="halo-pulse"/>
-
-          <!-- outer slow-spinning ring system -->
-          <g class="spin-slow" filter="url(#soft-glow)" stroke="url(#teal-grad)" stroke-width="0.7" fill="none">
-            <circle r="98" opacity="0.35" stroke-dasharray="2 4"/>
-            <ellipse rx="98" ry="32" opacity="0.4"/>
-            <ellipse rx="98" ry="32" transform="rotate(60)" opacity="0.35"/>
-            <ellipse rx="98" ry="32" transform="rotate(120)" opacity="0.3"/>
-          </g>
-
-          <!-- mid wireframe icosahedron -->
-          <g class="spin-mid" filter="url(#neon-glow)" stroke="url(#teal-grad)" stroke-width="1.1" fill="none">
-            <polygon points="0,-75 71,-23 44,61 -44,61 -71,-23"/>
-            <polygon points="0,75 71,23 44,-61 -44,-61 -71,23" opacity="0.6"/>
-            <line x1="0" y1="-75" x2="0" y2="75" opacity="0.4"/>
-            <line x1="-71" y1="-23" x2="71" y2="23" opacity="0.35"/>
-            <line x1="71" y1="-23" x2="-71" y2="23" opacity="0.35"/>
-            <line x1="-44" y1="61" x2="44" y2="-61" opacity="0.3"/>
-            <line x1="44" y1="61" x2="-44" y2="-61" opacity="0.3"/>
-          </g>
-
-          <!-- inner counter-spin diamond + dot -->
-          <g class="spin-fast-reverse" filter="url(#neon-glow)">
-            <polygon points="0,-35 35,0 0,35 -35,0" fill="none" stroke="#8CDBE3" stroke-width="1.2"/>
-            <circle r="4" fill="#8CDBE3"/>
-          </g>
-
-          <!-- orbiting satellites -->
-          <g class="orbit-track-1">
-            <circle cx="78" cy="0" r="3.5" fill="#8CDBE3" filter="url(#neon-glow)"/>
-          </g>
-          <g class="orbit-track-2">
-            <circle cx="0" cy="92" r="2.5" fill="#BFFFFA" filter="url(#neon-glow)"/>
-          </g>
-          <g class="orbit-track-3">
-            <circle cx="-85" cy="0" r="2" fill="#5DE5D5" filter="url(#soft-glow)"/>
-          </g>
-        </svg>
-      </div>
+      <!-- Empty on purpose: the 3D object (drawn on #bg-canvas behind the
+           page) docks here in the hero, then moves as you scroll. -->
+      <div class="hero-visual" id="hero-visual" aria-hidden="true"></div>
     </section>
 
     <!-- About -->
@@ -314,7 +261,7 @@
     <!-- Teaching & Research -->
     <section id="teaching" class="section anim-in section-bg">
       <h2 class="section-title"><span class="title-num">02</span> Teaching &amp; Research</h2>
-      <p class="section-sub">What I teach, what I work on, and how my classroom connects to real software engineering.</p>
+      <p class="section-sub">What I teach, what I research and publish, and how my classroom connects to real software engineering.</p>
 
       <div class="teaching-grid">
         <article class="glass-card card-3d course-card">
@@ -354,12 +301,56 @@
               <p>Predictive analytics, computer vision, and grounded retrieval-augmented systems for real-world domains.</p>
             </div>
             <div class="research-area">
-              <h4>Blockchain &amp; ZK Verification</h4>
-              <p>Privacy-preserving verification using zero-knowledge proofs over knowledge graphs and on-chain inheritance systems.</p>
+              <h4>Blockchain &amp; Applied Cryptography</h4>
+              <p>Threshold MPC, commitments, and zero-knowledge proofs for privacy-preserving markets, verifiable knowledge graphs, and on-chain inheritance.</p>
             </div>
             <div class="research-area">
               <h4>Student Research Projects</h4>
               <p>Mentoring undergraduates from idea to deployable artifact — the kind of work that builds confidence and a portfolio.</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- Publications -->
+        <article id="publications" class="glass-card card-3d pub-card full-width">
+          <div class="pub-head">
+            <div class="card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+            </div>
+            <div>
+              <h3>Publications</h3>
+              <p>Peer-reviewed papers, newest first.</p>
+            </div>
+          </div>
+
+          <div class="pub-item">
+            <div class="pub-tags">
+              <span class="pub-tag pub-tag-status"><span class="pub-live" aria-hidden="true"></span>Accepted · 2026</span>
+              <span class="pub-tag pub-tag-venue">EACE 2026</span>
+              <span class="pub-tag pub-tag-index">Springer LNEE · to appear</span>
+            </div>
+
+            <h4 class="pub-title">Sealed Peer-to-Peer Energy Trading: A Threshold-MPC Double Auction with Blockchain-Anchored Settlement</h4>
+            <p class="pub-authors"><strong>Sanjoy Chattopadhyay</strong>, Sudhir Kumar</p>
+            <p class="pub-venue">Emerging Technologies in Automation, Computation and Electronics (EACE 2026) &mdash; proceedings in Springer <em>Lecture Notes in Electrical Engineering</em>, Scopus-indexed.</p>
+
+            <p class="pub-abstract">Settling energy trades on a public ledger makes a peer-to-peer market auditable &mdash; and also publishes the one thing households would rather keep private: their price. <strong>PPDAM</strong> keeps every bid and ask sealed. Prosumers commit to their prices, secret-share them, and jointly run McAfee&rsquo;s trade-reduction double auction over an oblivious sorting network, so nobody learns anyone else&rsquo;s price. Only the clearing result is opened and settled on-chain.</p>
+
+            <ol class="pub-flow" aria-label="How the protocol works">
+              <li><span class="pub-step">01 · Seal</span><strong>Commit</strong><small>Orders locked under Pedersen commitments</small></li>
+              <li><span class="pub-step">02 · Share</span><strong>Split</strong><small>Prices bit-shared with Shamir secret sharing</small></li>
+              <li><span class="pub-step">03 · Clear</span><strong>Compute</strong><small>Oblivious sort + trade reduction inside threshold MPC</small></li>
+              <li><span class="pub-step">04 · Settle</span><strong>Anchor</strong><small>Clearing prices settled by an Ethereum smart contract</small></li>
+            </ol>
+
+            <div class="pub-stats">
+              <div class="pub-stat"><b>1.75 s</b><span>20-participant round</span></div>
+              <div class="pub-stat"><b>78.8 s</b><span>128-participant round (avg.)</span></div>
+              <div class="pub-stat"><b>4.55M gas</b><span>settlement on Ethereum Sepolia</span></div>
+            </div>
+
+            <div class="chips">
+              <span class="chip">Secure MPC</span><span class="chip">Shamir Secret Sharing</span><span class="chip">Pedersen Commitments</span><span class="chip">Schnorr Proofs</span><span class="chip">Double Auction</span><span class="chip">Smart Contracts</span>
             </div>
           </div>
         </article>
@@ -418,42 +409,42 @@
         <svg class="laptop-svg" viewBox="0 0 220 160" aria-hidden="true">
           <!-- Laptop base -->
           <g class="laptop-base">
-            <path d="M20 138 L200 138 L210 150 L10 150 Z" fill="#11141A" stroke="#28A89A" stroke-width="1.2"/>
-            <ellipse cx="110" cy="150" rx="6" ry="1.2" fill="#28A89A" opacity="0.6"/>
+            <path d="M20 138 L200 138 L210 150 L10 150 Z" fill="#11141A" stroke="#3B7A75" stroke-width="1.2"/>
+            <ellipse cx="110" cy="150" rx="6" ry="1.2" fill="#3B7A75" opacity="0.6"/>
           </g>
           <!-- Laptop lid (opens) -->
           <g class="laptop-lid">
             <!-- screen frame -->
-            <rect x="34" y="20" width="152" height="118" rx="6" fill="#0a0d12" stroke="#5DE5D5" stroke-width="1.4"/>
+            <rect x="34" y="20" width="152" height="118" rx="6" fill="#0a0d12" stroke="#5F9E99" stroke-width="1.4"/>
             <!-- screen content (code-editor feel) -->
             <rect x="40" y="26" width="140" height="106" rx="3" fill="#11141A"/>
             <!-- top bar -->
             <rect x="40" y="26" width="140" height="10" fill="#1a1f26"/>
             <circle cx="46"  cy="31" r="1.5" fill="#ff6b6b"/>
             <circle cx="52" cy="31" r="1.5" fill="#fbbf24"/>
-            <circle cx="58" cy="31" r="1.5" fill="#5DE5D5"/>
+            <circle cx="58" cy="31" r="1.5" fill="#5F9E99"/>
             <!-- code lines -->
             <g class="laptop-code">
-              <rect x="46" y="44" width="38" height="2" rx="1" fill="#5DE5D5"/>
-              <rect x="88" y="44" width="22" height="2" rx="1" fill="#8CDBE3"/>
+              <rect x="46" y="44" width="38" height="2" rx="1" fill="#5F9E99"/>
+              <rect x="88" y="44" width="22" height="2" rx="1" fill="#8FBEBA"/>
               <rect x="46" y="52" width="56" height="2" rx="1" fill="#94A4AC"/>
-              <rect x="52" y="60" width="48" height="2" rx="1" fill="#BFFFFA"/>
-              <rect x="52" y="68" width="64" height="2" rx="1" fill="#28A89A"/>
-              <rect x="46" y="76" width="30" height="2" rx="1" fill="#5DE5D5"/>
-              <rect x="46" y="88" width="42" height="2" rx="1" fill="#8CDBE3"/>
+              <rect x="52" y="60" width="48" height="2" rx="1" fill="#CFE4E1"/>
+              <rect x="52" y="68" width="64" height="2" rx="1" fill="#3B7A75"/>
+              <rect x="46" y="76" width="30" height="2" rx="1" fill="#5F9E99"/>
+              <rect x="46" y="88" width="42" height="2" rx="1" fill="#8FBEBA"/>
               <rect x="52" y="96" width="58" height="2" rx="1" fill="#94A4AC"/>
-              <rect x="52" y="104" width="40" height="2" rx="1" fill="#BFFFFA"/>
-              <rect x="46" y="116" width="26" height="2" rx="1" fill="#5DE5D5"/>
+              <rect x="52" y="104" width="40" height="2" rx="1" fill="#CFE4E1"/>
+              <rect x="46" y="116" width="26" height="2" rx="1" fill="#5F9E99"/>
             </g>
             <!-- cursor blink -->
-            <rect class="laptop-cursor" x="120" y="116" width="6" height="2" fill="#5DE5D5"/>
+            <rect class="laptop-cursor" x="120" y="116" width="6" height="2" fill="#5F9E99"/>
             <!-- screen reflection -->
             <path d="M40 26 L72 26 L52 132 L40 132 Z" fill="url(#screen-reflect)" opacity="0.18"/>
           </g>
           <defs>
             <linearGradient id="screen-reflect" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#BFFFFA"/>
-              <stop offset="100%" stop-color="#5DE5D5" stop-opacity="0"/>
+              <stop offset="0%" stop-color="#CFE4E1"/>
+              <stop offset="100%" stop-color="#5F9E99" stop-opacity="0"/>
             </linearGradient>
           </defs>
         </svg>

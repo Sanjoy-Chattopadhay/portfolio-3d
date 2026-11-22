@@ -1,298 +1,365 @@
 /* ============================================================
    SANJOY CHATTOPADHYAY — PORTFOLIO
-   Three.js 3D Background, Projects, Blogs, Books, Modals
+   Scroll-driven 3D scene, Projects, Blogs, Books, Modals
    ============================================================ */
 
-// ===== THREE.JS PARTICLE BACKGROUND =====
-(function initThreeBackground() {
+// ===== SCROLL-DRIVEN 3D SCENE =====
+// One quiet object behind the glass: 27 charcoal blocks with teal edges (and
+// a single coral one). Every section has its own formation, and the blocks
+// glide from one to the next as you scroll — scroll position drives the
+// morph, so it plays like a video you scrub, and stops when you stop.
+//
+//   hero      → data cube          teaching → layered stack
+//   about     → exploded view      research → blockchain (the paper's block is coral)
+//   projects  → neural network     students → helix
+//   books     → bookshelf          interview → staircase (with one setback)
+//   moments   → sphere             connect  → back to the cube
+//
+// Three.js r128 from cdnjs. No WebGL or no Three.js → the page simply has no
+// 3D and the hero falls back to one column (html:not(.has-3d) in CSS).
+(function initScrollScene() {
   const canvas = document.getElementById('bg-canvas');
   if (!canvas || typeof THREE === 'undefined') return;
 
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true, powerPreference: 'low-power' });
+  } catch (e) {
+    return;
+  }
+  document.documentElement.classList.add('has-3d');
 
-  // Particles
-  const particleCount = 250;
-  const positions = new Float32Array(particleCount * 3);
-  const velocities = [];
-  const spread = 40;
+  const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const N = 27;
 
-  for (let i = 0; i < particleCount; i++) {
-    positions[i * 3] = (Math.random() - 0.5) * spread;
-    positions[i * 3 + 1] = (Math.random() - 0.5) * spread;
-    positions[i * 3 + 2] = (Math.random() - 0.5) * spread;
-    velocities.push({
-      x: (Math.random() - 0.5) * 0.008,
-      y: (Math.random() - 0.5) * 0.008,
-      z: (Math.random() - 0.5) * 0.008
+  // ---------- formations ----------
+  // Each block: p = position, r = rotation, s = scale, h = coral highlight (0..1)
+  function B(p, r, s, h) { return { p: p, r: r || [0, 0, 0], s: s, h: h || 0 }; }
+  const HIDDEN = [0.001, 0.001, 0.001];
+  const grid = [];
+  for (let x = -1; x <= 1; x++) for (let y = -1; y <= 1; y++) for (let z = -1; z <= 1; z++) grid.push([x, y, z]);
+  const CORAL = 26;                                   // grid [1,1,1]: the front-top-right corner
+  const jit = function (i, k) { return Math.sin(i * 12.9898 + k * 78.233) * 0.5; }; // deterministic ±0.5
+
+  function cube() {
+    return grid.map(function (g, i) {
+      return B([g[0] * 1.07, g[1] * 1.07, g[2] * 1.07], null, [1, 1, 1], i === CORAL ? 1 : 0);
     });
   }
-
-  const particleGeometry = new THREE.BufferGeometry();
-  particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-  function getThemeColor() {
-    // Teal palette — primary node color
-    return document.documentElement.dataset.theme === 'light' ? 0x5DE5D5 : 0x8CDBE3;
+  function exploded() {
+    return grid.map(function (g, i) {
+      return B([g[0] * 2.05, g[1] * 2.05, g[2] * 2.05], [jit(i, 1) * 0.7, jit(i, 2) * 0.7, jit(i, 3) * 0.5], [0.8, 0.8, 0.8], i === CORAL ? 1 : 0);
+    });
   }
-  function getAccentColor() {
-    return document.documentElement.dataset.theme === 'light' ? 0x65C8B6 : 0x79D1CD;
+  function layers() {
+    return grid.map(function (g, i) {
+      return B([g[0] * 1.1, g[1] * 1.55, g[2] * 1.1], null, [1, 0.26, 1], i === 13 ? 1 : 0);
+    });
+  }
+  function chain() {
+    const out = [];
+    for (let i = 0; i < N; i++) {
+      const k = i % 9;
+      const x = (k - 4) * 1.7;
+      const y = Math.sin(k * 0.8) * 0.28;
+      out.push(i < 9
+        ? B([x, y, 0], [0.35, 0.55 + k * 0.08, 0], [0.92, 0.92, 0.92], k === 8 ? 1 : 0)
+        : B([x, y, 0], null, HIDDEN, 0));
+    }
+    return out;
+  }
+  const NET_LAYERS = [6, 8, 7, 6];
+  const NET_X = [-4.3, -1.45, 1.45, 4.3];
+  function network() {
+    const out = [];
+    NET_LAYERS.forEach(function (n, l) {
+      for (let k = 0; k < n; k++) {
+        const isOut = l === 3 && k === 2;
+        out.push(B([NET_X[l], (k - (n - 1) / 2) * 1.15, 0], [0.62, 0.78, 0], [0.42, 0.42, 0.42], isOut ? 1 : 0));
+      }
+    });
+    return out;
+  }
+  function helix() {
+    const out = [];
+    for (let i = 0; i < N; i++) {
+      const strand = i % 2, k = Math.floor(i / 2);
+      const a = k * 0.56 + strand * Math.PI;
+      out.push(B([Math.cos(a) * 2.1, (k - 6.5) * 0.6, Math.sin(a) * 2.1], [0, -a, 0], [0.5, 0.5, 0.5], i === 15 ? 1 : 0));
+    }
+    return out;
+  }
+  function shelf() {
+    const widths = [0.42, 0.55, 0.36, 0.5, 0.62, 0.4, 0.48, 0.58, 0.38, 0.52];
+    const heights = [2.3, 2.7, 2.1, 2.5, 2.8, 2.2, 2.6, 2.4, 2.0, 2.5];
+    const out = [];
+    let x = -3.1;
+    for (let i = 0; i < 10; i++) {
+      const w = widths[i], h = heights[i];
+      const lean = i === 9 ? -0.28 : 0;
+      out.push(B([x + w / 2 + (lean ? 0.35 : 0), -1.1 + h / 2 - (lean ? 0.12 : 0), 0], [0, 0, lean], [w, h, 1.7], i === 4 ? 1 : 0));
+      x += w + 0.08;
+    }
+    out.push(B([0, -1.22, 0], null, [7.4, 0.16, 2.0], 0));          // the shelf plank
+    while (out.length < N) out.push(B([0, -1.22, 0], null, HIDDEN, 0));
+    return out;
+  }
+  function stairs() {
+    const out = [];
+    for (let i = 0; i < N; i++) {
+      const step = Math.floor(i / 3), c = i % 3;
+      const rise = step === 5 ? 3.4 : step;                        // one setback on the way up
+      out.push(B([(step - 4) * 1.02, (rise - 4) * 0.5, (c - 1) * 1.02], null, [0.98, 0.5, 0.98], step === 8 && c === 1 ? 1 : 0));
+    }
+    return out;
+  }
+  function sphere() {
+    const out = [];
+    const ga = Math.PI * (3 - Math.sqrt(5));
+    for (let i = 0; i < N; i++) {
+      const y = 1 - (i / (N - 1)) * 2;
+      const rad = Math.sqrt(1 - y * y);
+      const t = ga * i;
+      const x = Math.cos(t) * rad, z = Math.sin(t) * rad;
+      out.push(B([x * 2.7, y * 2.7, z * 2.7], [-Math.asin(y), Math.atan2(x, z), 0], [0.5, 0.5, 0.5], i === 9 ? 1 : 0));
+    }
+    return out;
   }
 
-  const particleMaterial = new THREE.PointsMaterial({
-    color: getThemeColor(),
-    size: 0.06,
-    transparent: true,
-    opacity: 0.6,
-    blending: THREE.AdditiveBlending
+  // Links (thin teal lines) shown only while their formation is on screen
+  const chainLinks = [];
+  for (let i = 0; i < 8; i++) chainLinks.push([i, i + 1]);
+  const netLinks = [];
+  let base = 0;
+  for (let l = 0; l < NET_LAYERS.length - 1; l++) {
+    const nextBase = base + NET_LAYERS[l];
+    for (let a = 0; a < NET_LAYERS[l]; a++) for (let b = 0; b < NET_LAYERS[l + 1]; b++) netLinks.push([base + a, nextBase + b]);
+    base = nextBase;
+  }
+  const helixLinks = [];
+  for (let i = 0; i + 1 < N; i += 2) helixLinks.push([i, i + 1]);
+
+  // Section → formation. place: where it sits on screen (x, y as a fraction of the
+  // half-viewport, s = scale); rot: the group's resting orientation.
+  const STAGES = [
+    { sel: '.hero',         f: cube(),     rot: [0.5, 0.72],  place: { x: 0.5,   y: 0,    s: 1 },    anchor: '#hero-visual' },
+    { sel: '#about',        f: exploded(), rot: [0.35, 1.5],  place: { x: -0.55, y: 0,    s: 0.95 } },
+    { sel: '#teaching',     f: layers(),   rot: [0.62, 2.35], place: { x: 0.56,  y: 0.05, s: 1.05 } },
+    { sel: '#publications', f: chain(),    rot: [0.12, 0.0],  place: { x: 0,     y: 0,    s: 0.78 }, links: chainLinks },
+    { sel: '#projects',     f: network(),  rot: [0.0, -0.32], place: { x: 0,     y: 0,    s: 0.9 },  links: netLinks },
+    { sel: '#blogs',        f: helix(),    rot: [0.12, 0.6],  place: { x: 0.55,  y: 0,    s: 0.95 }, links: helixLinks },
+    { sel: '#books',        f: shelf(),    rot: [0.16, -0.45], place: { x: -0.5, y: 0,    s: 0.95 } },
+    { sel: '#interview',    f: stairs(),   rot: [0.45, 0.6],  place: { x: 0.52,  y: 0,    s: 0.95 } },
+    { sel: '#gallery',      f: sphere(),   rot: [0.2, 0.4],   place: { x: -0.52, y: 0,    s: 1 } },
+    { sel: '#connect',      f: cube(),     rot: [0.5, 2.29],  place: { x: 0,     y: 0.12, s: 0.9 } }
+  ].filter(function (st) { return document.querySelector(st.sel); });
+  if (!STAGES.length) return;
+
+  // ---------- scene ----------
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
+  camera.position.set(0, 0, 20);
+  const holder = new THREE.Group();   // screen placement + scale
+  const spin = new THREE.Group();     // orientation (formation + scroll + idle + mouse)
+  holder.add(spin);
+  scene.add(holder);
+
+  const hemi = new THREE.HemisphereLight(0xffffff, 0x1a1a1a, 0.55);
+  const key = new THREE.DirectionalLight(0xffffff, 0.85);
+  key.position.set(6, 9, 12);
+  const tealLight = new THREE.PointLight(0x5f9e99, 1.3, 40);
+  tealLight.position.set(-9, -3, 8);
+  const coralLight = new THREE.PointLight(0xef8e7f, 0.7, 40);
+  coralLight.position.set(9, -7, 5);
+  scene.add(hemi, key, tealLight, coralLight);
+
+  const THEMES = {
+    dark:  { fog: 0x121212, block: 0x1c1e1e, edge: 0x5f9e99, coral: 0xef8e7f, edgeA: 0.6,  linkA: 0.3 },
+    light: { fog: 0xf5f3ef, block: 0xe9e6e1, edge: 0x3b7a75, coral: 0xd06a5a, edgeA: 0.55, linkA: 0.35 }
+  };
+  let theme = THEMES.dark;
+  scene.fog = new THREE.Fog(0x121212, 15, 31);
+
+  const boxGeo = new THREE.BoxGeometry(1, 1, 1);
+  const edgeGeo = new THREE.EdgesGeometry(boxGeo);
+  const tmpColor = new THREE.Color();
+  const blocks = [];
+  for (let i = 0; i < N; i++) {
+    const mat = new THREE.MeshStandardMaterial({ color: 0x1c1e1e, metalness: 0.25, roughness: 0.55, emissive: 0x000000 });
+    const mesh = new THREE.Mesh(boxGeo, mat);
+    const lineMat = new THREE.LineBasicMaterial({ color: 0x5f9e99, transparent: true, opacity: 0.6 });
+    mesh.add(new THREE.LineSegments(edgeGeo, lineMat));
+    spin.add(mesh);
+    blocks.push({ mesh: mesh, mat: mat, lineMat: lineMat, delay: ((i * 7) % N) / (N - 1) * 0.24 });
+  }
+
+  // one LineSegments per linked formation
+  STAGES.forEach(function (st) {
+    if (!st.links) return;
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(st.links.length * 6), 3));
+    const mat = new THREE.LineBasicMaterial({ color: 0x5f9e99, transparent: true, opacity: 0, depthWrite: false });
+    st.lineObj = new THREE.LineSegments(geo, mat);
+    st.lineObj.visible = false;
+    spin.add(st.lineObj);
   });
 
-  const particles = new THREE.Points(particleGeometry, particleMaterial);
-  scene.add(particles);
+  function applyTheme() {
+    theme = document.documentElement.dataset.theme === 'light' ? THEMES.light : THEMES.dark;
+    scene.fog.color.setHex(theme.fog);
+    const light = theme === THEMES.light;
+    hemi.intensity = light ? 0.95 : 0.55;
+    tealLight.intensity = light ? 0.35 : 1.3;      // coloured fills read as candy on light blocks
+    coralLight.intensity = light ? 0.12 : 0.7;
+    STAGES.forEach(function (st) { if (st.lineObj) st.lineObj.material.color.setHex(theme.edge); });
+  }
+  applyTheme();
 
-  // Connection lines
-  const lineGeometry = new THREE.BufferGeometry();
-  const lineMaterial = new THREE.LineBasicMaterial({
-    color: getThemeColor(),
-    transparent: true,
-    opacity: 0.08,
-    blending: THREE.AdditiveBlending
-  });
-  const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
-  scene.add(lines);
+  // ---------- layout + scroll mapping ----------
+  let W = 0, H = 0, halfH = 1, halfW = 1, isNarrow = false;
+  let starts = [];
+  function measure() {
+    W = window.innerWidth;
+    H = window.innerHeight;
+    isNarrow = W < 900;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isNarrow ? 1.5 : 1.75));
+    renderer.setSize(W, H, false);
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    camera.aspect = W / H;
+    camera.updateProjectionMatrix();
+    halfH = camera.position.z * Math.tan((camera.fov * Math.PI) / 360);
+    halfW = halfH * camera.aspect;
+    const sy = window.pageYOffset || 0;
+    // a formation is fully formed when its section's top reaches 35% of the viewport
+    starts = STAGES.map(function (st, i) {
+      if (i === 0) return 0;
+      const el = document.querySelector(st.sel);
+      return Math.max(0, el.getBoundingClientRect().top + sy - H * 0.35);
+    });
+    for (let i = 1; i < starts.length; i++) if (starts[i] <= starts[i - 1]) starts[i] = starts[i - 1] + 1;
+  }
 
-  // Floating icosahedron wireframe
-  const icoGeo = new THREE.IcosahedronGeometry(2.5, 1);
-  const icoMat = new THREE.MeshBasicMaterial({ color: 0x5DE5D5, wireframe: true, transparent: true, opacity: 0.14 });
-  const icosahedron = new THREE.Mesh(icoGeo, icoMat);
-  icosahedron.position.set(8, 3, -10);
-  scene.add(icosahedron);
+  function progress() {
+    const y = window.pageYOffset || 0;
+    let a = 0;
+    while (a + 1 < starts.length && y >= starts[a + 1]) a++;
+    if (a + 1 >= starts.length) return { a: a, b: a, t: 0 };
+    const raw = (y - starts[a]) / (starts[a + 1] - starts[a]);
+    // hold the current formation for the first 35% of the section, then morph
+    let t = Math.min(1, Math.max(0, (raw - 0.35) / 0.65));
+    if (reduceMotion) t = t < 0.5 ? 0 : 1;      // no gliding — just switch
+    return { a: a, b: a + 1, t: t };
+  }
 
-  // Floating torus
-  const torusGeo = new THREE.TorusGeometry(1.8, 0.4, 8, 20);
-  const torusMat = new THREE.MeshBasicMaterial({ color: 0x8CDBE3, wireframe: true, transparent: true, opacity: 0.12 });
-  const torus = new THREE.Mesh(torusGeo, torusMat);
-  torus.position.set(-9, -4, -12);
-  scene.add(torus);
+  function ease(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+  function lerp(x, y, t) { return x + (y - x) * t; }
 
-  camera.position.z = 15;
-
-  let mouseX = 0, mouseY = 0;
-  document.addEventListener('mousemove', (e) => {
-    mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-    mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-  });
-
-  function updateLines() {
-    const linePositions = [];
-    const threshold = 4.5;
-    const pos = particleGeometry.attributes.position.array;
-    for (let i = 0; i < particleCount; i++) {
-      for (let j = i + 1; j < particleCount; j++) {
-        const dx = pos[i * 3] - pos[j * 3];
-        const dy = pos[i * 3 + 1] - pos[j * 3 + 1];
-        const dz = pos[i * 3 + 2] - pos[j * 3 + 2];
-        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-        if (dist < threshold) {
-          linePositions.push(pos[i * 3], pos[i * 3 + 1], pos[i * 3 + 2]);
-          linePositions.push(pos[j * 3], pos[j * 3 + 1], pos[j * 3 + 2]);
-        }
+  // where a stage wants the object, in world units at z = 0
+  const heroAnchor = document.querySelector('#hero-visual');
+  function placeFor(st) {
+    if (st.anchor && heroAnchor) {
+      const r = heroAnchor.getBoundingClientRect();
+      if (r.width > 0 && r.height > 0) {
+        const wx = ((r.left + r.width / 2) / W - 0.5) * 2 * halfW;
+        const wy = -((r.top + r.height / 2) / H - 0.5) * 2 * halfH;
+        const ws = (Math.min(r.width, r.height) / H) * 2 * halfH;   // anchor size in world units
+        return { x: wx, y: wy, s: Math.min(1.15, ws / 5.4) };
       }
     }
-    lineGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(linePositions), 3));
+    if (isNarrow) return { x: 0, y: st.place.y * halfH, s: st.place.s * 0.62 };
+    return { x: st.place.x * halfW, y: st.place.y * halfH, s: st.place.s };
   }
 
-  let frame = 0;
-  function animate() {
-    requestAnimationFrame(animate);
-    frame++;
+  // ---------- input ----------
+  let mx = 0, my = 0, cmx = 0, cmy = 0;
+  if (window.matchMedia && window.matchMedia('(pointer: fine)').matches) {
+    document.addEventListener('mousemove', function (e) {
+      mx = (e.clientX / W - 0.5) * 2;
+      my = (e.clientY / H - 0.5) * 2;
+    }, { passive: true });
+  }
 
-    // Move particles
-    const pos = particleGeometry.attributes.position.array;
-    for (let i = 0; i < particleCount; i++) {
-      pos[i * 3] += velocities[i].x;
-      pos[i * 3 + 1] += velocities[i].y;
-      pos[i * 3 + 2] += velocities[i].z;
-      // Wrap around
-      for (let a = 0; a < 3; a++) {
-        if (pos[i * 3 + a] > spread / 2) pos[i * 3 + a] = -spread / 2;
-        if (pos[i * 3 + a] < -spread / 2) pos[i * 3 + a] = spread / 2;
-      }
+  // ---------- frame ----------
+  const linkPos = new THREE.Vector3();
+  function render(time) {
+    const pr = progress();
+    const A = STAGES[pr.a], Bst = STAGES[pr.b];
+    const t = ease(pr.t);
+
+    // placement + orientation of the whole object
+    const pa = placeFor(A), pb = placeFor(Bst);
+    holder.position.set(lerp(pa.x, pb.x, t), lerp(pa.y, pb.y, t), 0);
+    const sc = lerp(pa.s, pb.s, t);
+    holder.scale.set(sc, sc, sc);
+
+    cmx += (mx - cmx) * 0.05;
+    cmy += (my - cmy) * 0.05;
+    const idle = reduceMotion ? 0 : time * 0.00012;
+    spin.rotation.x = lerp(A.rot[0], Bst.rot[0], t) + cmy * 0.08 + (reduceMotion ? 0 : Math.sin(idle * 2.1) * 0.05);
+    spin.rotation.y = lerp(A.rot[1], Bst.rot[1], t) + cmx * 0.14 + (reduceMotion ? 0 : Math.sin(idle * 1.3) * 0.22);
+
+    // blocks: staggered so the change ripples through the object
+    for (let i = 0; i < N; i++) {
+      const bl = blocks[i];
+      const lt = ease(Math.min(1, Math.max(0, (pr.t - bl.delay) / (1 - 0.24))));
+      const fa = A.f[i], fb = Bst.f[i];
+      bl.mesh.position.set(lerp(fa.p[0], fb.p[0], lt), lerp(fa.p[1], fb.p[1], lt), lerp(fa.p[2], fb.p[2], lt));
+      bl.mesh.rotation.set(lerp(fa.r[0], fb.r[0], lt), lerp(fa.r[1], fb.r[1], lt), lerp(fa.r[2], fb.r[2], lt));
+      bl.mesh.scale.set(lerp(fa.s[0], fb.s[0], lt), lerp(fa.s[1], fb.s[1], lt), lerp(fa.s[2], fb.s[2], lt));
+      const h = lerp(fa.h, fb.h, lt);
+      bl.lineMat.color.setHex(theme.edge).lerp(tmpColor.setHex(theme.coral), h);
+      bl.lineMat.opacity = lerp(theme.edgeA, 0.95, h);
+      bl.mat.color.setHex(theme.block);
+      bl.mat.emissive.setHex(theme.coral).multiplyScalar(h * (theme === THEMES.light ? 0.12 : 0.22));
     }
-    particleGeometry.attributes.position.needsUpdate = true;
 
-    if (frame % 3 === 0) updateLines();
-
-    // Rotate scene with mouse parallax
-    particles.rotation.y += 0.0005;
-    particles.rotation.x += 0.0002;
-    camera.position.x += (mouseX * 2 - camera.position.x) * 0.02;
-    camera.position.y += (-mouseY * 2 - camera.position.y) * 0.02;
-    camera.lookAt(scene.position);
-
-    icosahedron.rotation.x += 0.003;
-    icosahedron.rotation.y += 0.005;
-    torus.rotation.x += 0.004;
-    torus.rotation.y += 0.002;
+    // links for formations on screen
+    STAGES.forEach(function (st, si) {
+      if (!st.lineObj) return;
+      const w = si === pr.a ? 1 - t : (si === pr.b ? t : 0);
+      st.lineObj.visible = w > 0.01;
+      if (!st.lineObj.visible) return;
+      st.lineObj.material.opacity = theme.linkA * w * w;
+      const arr = st.lineObj.geometry.attributes.position.array;
+      for (let k = 0; k < st.links.length; k++) {
+        linkPos.copy(blocks[st.links[k][0]].mesh.position);
+        arr[k * 6] = linkPos.x; arr[k * 6 + 1] = linkPos.y; arr[k * 6 + 2] = linkPos.z;
+        linkPos.copy(blocks[st.links[k][1]].mesh.position);
+        arr[k * 6 + 3] = linkPos.x; arr[k * 6 + 4] = linkPos.y; arr[k * 6 + 5] = linkPos.z;
+      }
+      st.lineObj.geometry.attributes.position.needsUpdate = true;
+    });
 
     renderer.render(scene, camera);
   }
 
-  animate();
-
-  window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  });
-
-  // Expose theme update
-  window.updateThreeColors = function () {
-    const c = getThemeColor();
-    const a = getAccentColor();
-    particleMaterial.color.setHex(c);
-    lineMaterial.color.setHex(c);
-    icoMat.color.setHex(0x5DE5D5);
-    torusMat.color.setHex(a);
-  };
-})();
-
-// ===== CURSOR DOODLES =====
-// Drops tiny SVG sparkles where the cursor moves. Respects reduced-motion + touch.
-(function cursorDoodles() {
-  if (!window.matchMedia('(pointer: fine)').matches) return;
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-  const layer = document.createElement('div');
-  layer.className = 'doodle-layer';
-  layer.setAttribute('aria-hidden', 'true');
-  document.body.appendChild(layer);
-
-  const shapes = [
-    // 4-point sparkle (filled)
-    '<svg viewBox="-10 -10 20 20"><path d="M0,-8 L2,-2 L8,0 L2,2 L0,8 L-2,2 L-8,0 L-2,-2 Z" fill="currentColor"/></svg>',
-    // ring
-    '<svg viewBox="-10 -10 20 20"><circle r="6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
-    // plus
-    '<svg viewBox="-10 -10 20 20"><path d="M0,-7 L0,7 M-7,0 L7,0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
-    // dot
-    '<svg viewBox="-10 -10 20 20"><circle r="2.8" fill="currentColor"/></svg>',
-    // triangle outline
-    '<svg viewBox="-10 -10 20 20"><path d="M0,-7 L6,5 L-6,5 Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>',
-    // 6-point burst
-    '<svg viewBox="-10 -10 20 20"><path d="M0,-7 L1.5,-1.5 L7,0 L1.5,1.5 L0,7 L-1.5,1.5 L-7,0 L-1.5,-1.5 Z M3.5,-6 L4.5,-4 M-3.5,6 L-4.5,4" fill="currentColor" stroke="currentColor" stroke-width="0.6"/></svg>',
-    // square diamond
-    '<svg viewBox="-10 -10 20 20"><rect x="-4" y="-4" width="8" height="8" transform="rotate(45)" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
-    // semi-circle arc
-    '<svg viewBox="-10 -10 20 20"><path d="M-6,2 A6,6 0 0,1 6,2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
-    // wave squiggle
-    '<svg viewBox="-10 -10 20 20"><path d="M-7,0 Q-3.5,-4 0,0 T7,0" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
-    // little heart for warmth
-    '<svg viewBox="-10 -10 20 20"><path d="M0,5 C-6,0 -6,-5 -3,-5 C-1,-5 0,-3 0,-2 C0,-3 1,-5 3,-5 C6,-5 6,0 0,5 Z" fill="currentColor"/></svg>'
-  ];
-
-  const colors = ['#5DE5D5', '#6CCBE5', '#BFFFFA', '#4DC0FF', '#8CDBE3', '#1FB3A3', '#F8C56A'];
-
-  let lastSpawn = 0;
-  let lastX = 0, lastY = 0;
-  let speed = 0;
-
-  document.addEventListener('mousemove', (e) => {
-    const now = performance.now();
-    const dx = e.clientX - lastX;
-    const dy = e.clientY - lastY;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    speed = speed * 0.6 + dist * 0.4;
-
-    // throttle: only spawn when cursor has moved enough + min interval
-    if (now - lastSpawn < 55 || dist < 16) return;
-    lastSpawn = now;
-    lastX = e.clientX;
-    lastY = e.clientY;
-
-    // Spawn a streak of doodles when moving fast
-    const burst = speed > 60 ? 2 : 1;
-    for (let i = 0; i < burst; i++) {
-      const dot = document.createElement('span');
-      dot.className = 'doodle';
-      dot.innerHTML = shapes[Math.floor(Math.random() * shapes.length)];
-      const c = colors[Math.floor(Math.random() * colors.length)];
-      const size = 12 + Math.random() * 16;
-      const drift = (Math.random() - 0.5) * 70;
-      const rot = (Math.random() - 0.5) * 120;
-      const offsetX = (Math.random() - 0.5) * 12 * i;
-      const offsetY = (Math.random() - 0.5) * 12 * i;
-      dot.style.cssText = `
-        left:${e.clientX + offsetX}px;top:${e.clientY + offsetY}px;
-        width:${size}px;height:${size}px;
-        color:${c};
-        --drift:${drift}px;--rot:${rot}deg;
-        animation-delay:${i * 60}ms;
-      `;
-      layer.appendChild(dot);
-      setTimeout(() => dot.remove(), 1100 + i * 80);
-    }
-  }, { passive: true });
-
-  // Magnetic doodle burst on card hover — emits a small ring of doodles around the card
-  document.addEventListener('mouseover', (e) => {
-    const target = e.target.closest('.glass-card, .project-card, .blog-card, .connect-card, .book, .memory-shot');
-    if (!target) return;
-    if (target._lastBurst && performance.now() - target._lastBurst < 1200) return;
-    target._lastBurst = performance.now();
-    const r = target.getBoundingClientRect();
-    const cx = r.left + r.width / 2;
-    const cy = r.top + r.height / 2;
-    const radius = Math.min(r.width, r.height) * 0.42;
-    const ringCount = 6;
-    for (let i = 0; i < ringCount; i++) {
-      const ang = (i / ringCount) * Math.PI * 2 + Math.random() * 0.4;
-      const x = cx + Math.cos(ang) * radius;
-      const y = cy + Math.sin(ang) * radius;
-      const dot = document.createElement('span');
-      dot.className = 'doodle';
-      dot.innerHTML = shapes[Math.floor(Math.random() * shapes.length)];
-      const c = colors[Math.floor(Math.random() * colors.length)];
-      const size = 14 + Math.random() * 10;
-      dot.style.cssText = `
-        left:${x}px;top:${y}px;
-        width:${size}px;height:${size}px;
-        color:${c};
-        --drift:${Math.cos(ang) * 22}px;--rot:${(Math.random() - 0.5) * 90}deg;
-      `;
-      layer.appendChild(dot);
-      setTimeout(() => dot.remove(), 1000);
-    }
-  }, { passive: true });
-})();
-
-// ===== HERO SVG MOUSE PARALLAX =====
-(function heroParallax() {
-  const wrap = document.getElementById('hero-visual');
-  const svg  = wrap && wrap.querySelector('.hero-svg');
-  if (!wrap || !svg) return;
-  if (!window.matchMedia('(pointer: fine)').matches) return;
-  wrap.classList.add('is-parallax');
-  let rafId = null;
-  let targetX = 0, targetY = 0, curX = 0, curY = 0;
-  document.addEventListener('mousemove', (e) => {
-    targetX = (e.clientX / window.innerWidth - 0.5) * 18;
-    targetY = (e.clientY / window.innerHeight - 0.5) * 18;
-    if (!rafId) rafId = requestAnimationFrame(tick);
-  });
-  function tick() {
-    curX += (targetX - curX) * 0.08;
-    curY += (targetY - curY) * 0.08;
-    svg.style.transform = `translate3d(${curX}px, ${curY}px, 0)`;
-    if (Math.abs(targetX - curX) > 0.1 || Math.abs(targetY - curY) > 0.1) {
-      rafId = requestAnimationFrame(tick);
-    } else {
-      rafId = null;
-    }
+  measure();
+  let pending = false;
+  function remeasure() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () { pending = false; measure(); if (reduceMotion) render(0); });
   }
+  window.addEventListener('resize', remeasure);
+  window.addEventListener('load', remeasure);
+  if ('ResizeObserver' in window) new ResizeObserver(remeasure).observe(document.body);
+
+  window.updateBgColors = function () {
+    applyTheme();
+    if (reduceMotion) render(0);
+  };
+
+  if (reduceMotion) {
+    // Render only when something changes: no idle drift, no gliding.
+    render(0);
+    window.addEventListener('scroll', function () { requestAnimationFrame(function () { render(0); }); }, { passive: true });
+    return;
+  }
+  (function loop(time) {
+    render(time || 0);
+    requestAnimationFrame(loop);
+  })();
 })();
 
 // ===== THEME TOGGLE =====
@@ -302,7 +369,7 @@ const root = document.documentElement;
 function setTheme(theme) {
   root.dataset.theme = theme;
   localStorage.setItem('theme', theme);
-  if (window.updateThreeColors) window.updateThreeColors();
+  if (window.updateBgColors) window.updateBgColors();
 }
 
 if (themeToggle) themeToggle.addEventListener('click', () => {
@@ -779,7 +846,7 @@ const blogs = [
     id: 'problem-solving',
     title: 'How to Start Solving a Real-Life Problem',
     icon: 'PS',
-    iconBg: 'rgba(93, 229, 213, 0.18)',
+    iconBg: 'rgba(95, 158, 153, 0.18)',
     summary: 'Start with observation, not code. The best projects come from real friction you see every day — not from tutorial ideas.',
     tags: ['Problem Solving', 'Beginners', 'Mindset'],
     content: `
@@ -814,7 +881,7 @@ const blogs = [
     id: 'motivation',
     title: 'Finding Motivation That Actually Lasts',
     icon: 'MV',
-    iconBg: 'rgba(140, 219, 227, 0.18)',
+    iconBg: 'rgba(143, 190, 186, 0.18)',
     summary: 'Motivation fades when your project has no users, no deadlines, and no visible progress. Here is how to fix that.',
     tags: ['Motivation', 'Productivity', 'Career'],
     content: `
@@ -944,7 +1011,7 @@ const blogs = [
     id: 'first-ai-agent',
     title: 'Building Your First AI Agent: A Practical Guide',
     icon: 'AG',
-    iconBg: 'rgba(93, 229, 213, 0.25)',
+    iconBg: 'rgba(95, 158, 153, 0.25)',
     summary: 'A step-by-step guide to building your first AI agent using LangChain — from setup to deployment, with real code patterns.',
     tags: ['Tutorial', 'LangChain', 'AI Agents', 'Hands-on'],
     content: `
@@ -1197,8 +1264,10 @@ const books = [
 // ===== RENDER PROJECTS =====
 const projectsGrid = document.getElementById('projects-grid');
 
-function makeProjectTheme(accent, accent2, soft, glow) {
-  return `--project-accent:${accent}; --project-accent-2:${accent2}; --project-soft:${soft}; --project-glow:${glow};`;
+// Every project card shares the site palette (muted teal + soft coral), so the
+// per-project colour arguments below are kept only as documentation.
+function makeProjectTheme() {
+  return '--project-accent:#5F9E99; --project-accent-2:#EF8E7F; --project-soft:rgba(95, 158, 153, 0.12); --project-glow:rgba(239, 142, 127, 0.14);';
 }
 
 const projectMotionProfiles = {
@@ -1220,7 +1289,7 @@ const projectMotionProfiles = {
     label: 'Live Dialogue',
     sceneClass: 'scene-chatbot',
     htmlSummary: 'Chat bubbles with typing dots — the chatbot juggles conversation, paper summarisation, and report generation in a single tool.',
-    style: makeProjectTheme('#3b82f6', '#a855f7', 'rgba(59, 130, 246, 0.14)', 'rgba(140, 219, 227, 0.18)'),
+    style: makeProjectTheme('#3b82f6', '#a855f7', 'rgba(59, 130, 246, 0.14)', 'rgba(143, 190, 186, 0.18)'),
     visual: '<span class="v-bubble bubble-1"></span><span class="v-bubble bubble-2"></span><span class="v-bubble bubble-3"></span><span class="v-dot dot-1"></span><span class="v-dot dot-2"></span><span class="v-dot dot-3"></span>'
   },
   'Expense-Tracker-Expense-Manager': {
@@ -1450,38 +1519,38 @@ function renderLaptopResource(r) {
         <svg viewBox="0 0 200 130" aria-hidden="true">
           <!-- Base / keyboard -->
           <g class="lr-base">
-            <path d="M16 116 L184 116 L194 126 L6 126 Z" fill="#0B1014" stroke="rgba(93,229,213,0.4)" stroke-width="0.8"/>
-            <ellipse cx="100" cy="126" rx="6" ry="1.1" fill="rgba(93,229,213,0.45)"/>
+            <path d="M16 116 L184 116 L194 126 L6 126 Z" fill="#181818" stroke="rgba(95, 158, 153,0.4)" stroke-width="0.8"/>
+            <ellipse cx="100" cy="126" rx="6" ry="1.1" fill="rgba(95, 158, 153,0.45)"/>
           </g>
           <!-- Lid / screen — opens on hover -->
           <g class="lr-lid">
-            <rect x="26" y="18" width="148" height="98" rx="4" fill="#05070A" stroke="rgba(108,203,229,0.45)" stroke-width="1"/>
-            <rect x="30" y="22" width="140" height="90" rx="2" fill="#0B1014"/>
+            <rect x="26" y="18" width="148" height="98" rx="4" fill="#121212" stroke="rgba(127, 178, 173,0.45)" stroke-width="1"/>
+            <rect x="30" y="22" width="140" height="90" rx="2" fill="#181818"/>
             <!-- top bar with traffic lights -->
-            <rect x="30" y="22" width="140" height="8" fill="#161C24"/>
+            <rect x="30" y="22" width="140" height="8" fill="#1F1F1F"/>
             <circle cx="36" cy="26" r="1.4" fill="#ff6b6b"/>
-            <circle cx="41" cy="26" r="1.4" fill="#F8C56A"/>
-            <circle cx="46" cy="26" r="1.4" fill="#5DE5D5"/>
+            <circle cx="41" cy="26" r="1.4" fill="#EF8E7F"/>
+            <circle cx="46" cy="26" r="1.4" fill="#5F9E99"/>
             <!-- URL bar -->
-            <rect x="56" y="23" width="108" height="6" rx="3" fill="rgba(108,203,229,0.18)" stroke="rgba(108,203,229,0.35)" stroke-width="0.4"/>
-            <text x="60" y="28" font-family="JetBrains Mono, monospace" font-size="4.2" fill="rgba(191,255,250,0.85)">${escapeXml(host || 'open ↗')}</text>
+            <rect x="56" y="23" width="108" height="6" rx="3" fill="rgba(127, 178, 173,0.18)" stroke="rgba(127, 178, 173,0.35)" stroke-width="0.4"/>
+            <text x="60" y="28" font-family="JetBrains Mono, monospace" font-size="4.2" fill="rgba(207, 228, 225,0.85)">${escapeXml(host || 'open ↗')}</text>
             <!-- Big monogram on the "screen" -->
             <text class="lr-monogram" x="100" y="68" text-anchor="middle"
                   font-family="JetBrains Mono, monospace" font-weight="800" font-size="22"
                   fill="url(#lr-mono-grad)">${escapeXml(mono)}</text>
             <!-- Faux content lines -->
-            <rect x="40" y="80" width="60" height="2" rx="1" fill="rgba(93,229,213,0.7)"/>
-            <rect x="40" y="86" width="90" height="2" rx="1" fill="rgba(140,219,227,0.5)"/>
-            <rect x="40" y="92" width="74" height="2" rx="1" fill="rgba(77,192,255,0.5)"/>
-            <rect x="40" y="98" width="50" height="2" rx="1" fill="rgba(140,219,227,0.4)"/>
+            <rect x="40" y="80" width="60" height="2" rx="1" fill="rgba(95, 158, 153,0.7)"/>
+            <rect x="40" y="86" width="90" height="2" rx="1" fill="rgba(143, 190, 186,0.5)"/>
+            <rect x="40" y="92" width="74" height="2" rx="1" fill="rgba(239, 142, 127,0.5)"/>
+            <rect x="40" y="98" width="50" height="2" rx="1" fill="rgba(143, 190, 186,0.4)"/>
             <!-- Cursor blink -->
-            <rect class="lr-cursor" x="92" y="98" width="3" height="2" fill="#5DE5D5"/>
+            <rect class="lr-cursor" x="92" y="98" width="3" height="2" fill="#5F9E99"/>
           </g>
           <defs>
             <linearGradient id="lr-mono-grad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#BFFFFA"/>
-              <stop offset="60%" stop-color="#5DE5D5"/>
-              <stop offset="100%" stop-color="#4DC0FF"/>
+              <stop offset="0%" stop-color="#CFE4E1"/>
+              <stop offset="60%" stop-color="#5F9E99"/>
+              <stop offset="100%" stop-color="#EF8E7F"/>
             </linearGradient>
           </defs>
         </svg>
@@ -1561,9 +1630,9 @@ function renderBooks() {
   // Spine palette variations from teal family — every book has a different shade
   const spineThemes = [
     { c1: '#52BEA0', c2: '#3a9d83' },
-    { c1: '#65C8B6', c2: '#469d8c' },
-    { c1: '#79D1CD', c2: '#519a96' },
-    { c1: '#8CDBE3', c2: '#5fa3aa' },
+    { c1: '#5F9E99', c2: '#469d8c' },
+    { c1: '#7FB2AD', c2: '#519a96' },
+    { c1: '#8FBEBA', c2: '#5fa3aa' },
     { c1: '#4a9886', c2: '#2f6e60' },
     { c1: '#3d8a82', c2: '#256460' },
     { c1: '#6fc9bd', c2: '#3f8e83' },
@@ -1729,8 +1798,8 @@ function playBookOpen(book, theme, done) {
         <!-- spine shadow strip -->
         <rect x="252" y="60" width="8" height="240" fill="rgba(0,0,0,0.35)"/>
         <!-- bookmark ribbon -->
-        <rect x="232" y="60" width="10" height="55" fill="rgba(248, 197, 106, 0.85)"/>
-        <polygon points="232,115 242,115 237,123" fill="rgba(248, 197, 106, 0.85)"/>
+        <rect x="232" y="60" width="10" height="55" fill="rgba(239, 142, 127, 0.85)"/>
+        <polygon points="232,115 242,115 237,123" fill="rgba(239, 142, 127, 0.85)"/>
         <!-- title block on cover -->
         <text class="bk-cover-monogram" x="170" y="135" text-anchor="middle"
               font-family="'JetBrains Mono', monospace" font-size="26" font-weight="800" fill="rgba(255,248,230,0.96)">${book.initials}</text>
@@ -1811,3 +1880,6 @@ function initMemoryGallery() {
   try { fn(); } catch (err) { console.error('init failed:', fn.name, err); }
 });
 document.getElementById('year').textContent = new Date().getFullYear();
+// Hero stat stays in sync with the projects list
+const statProjects = document.getElementById('stat-projects');
+if (statProjects) statProjects.textContent = projects.length;
