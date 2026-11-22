@@ -25,9 +25,8 @@ Built with plain **HTML, CSS, and JavaScript** — no frameworks, no build step.
 
 ## Key Features
 
-- **Scroll-driven 3D scene** — one Three.js object (27 charcoal blocks with teal edges and a single coral block) sits behind the glass cards and rearranges itself as you scroll: data cube → exploded view → layered stack → blockchain → neural network → helix → bookshelf → staircase → sphere → cube. Scroll position drives the morph, so it plays like a video you scrub; reduced-motion users get a static object that switches without gliding
-- **Charcoal + muted teal + soft coral palette** — teal for actions and structure, coral only for highlights, hairlines instead of glows
-- **Hero stats** — GATE percentile, projects shipped, latest paper
+- **Scroll-driven 3D scene** — one Three.js object (27 charcoal blocks with teal edges and a single navy block) sits behind the glass cards and rearranges itself as you scroll: data cube → exploded view → layered stack → blockchain → neural network → helix → bookshelf → staircase → sphere → cube. Scroll position drives the morph, so it plays like a video you scrub; reduced-motion users get a static object that switches without gliding
+- **Calm palette** — dark: charcoal with muted teal and navy-blue highlights; light: black and white with greys and navy highlights; hairlines instead of glows. Project cards keep their own colours
 - **Seamless "floating in space" sections** — feathered background tints, one consistent divider pattern, no boxed borders
 - **3D bookshelf** — pull-out book spines and an SVG page-flip opening animation
 - **Filterable projects** with per-project animated motion scenes

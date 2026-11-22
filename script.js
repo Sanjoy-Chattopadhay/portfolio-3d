@@ -5,12 +5,12 @@
 
 // ===== SCROLL-DRIVEN 3D SCENE =====
 // One quiet object behind the glass: 27 charcoal blocks with teal edges (and
-// a single coral one). Every section has its own formation, and the blocks
+// a single navy one). Every section has its own formation, and the blocks
 // glide from one to the next as you scroll — scroll position drives the
 // morph, so it plays like a video you scrub, and stops when you stop.
 //
 //   hero      → data cube          teaching → layered stack
-//   about     → exploded view      research → blockchain (the paper's block is coral)
+//   about     → exploded view      research → blockchain (the paper's block is navy)
 //   projects  → neural network     students → helix
 //   books     → bookshelf          interview → staircase (with one setback)
 //   moments   → sphere             connect  → back to the cube
@@ -33,7 +33,7 @@
   const N = 27;
 
   // ---------- formations ----------
-  // Each block: p = position, r = rotation, s = scale, h = coral highlight (0..1)
+  // Each block: p = position, r = rotation, s = scale, h = navy highlight (0..1)
   function B(p, r, s, h) { return { p: p, r: r || [0, 0, 0], s: s, h: h || 0 }; }
   const HIDDEN = [0.001, 0.001, 0.001];
   const grid = [];
@@ -169,13 +169,14 @@
   key.position.set(6, 9, 12);
   const tealLight = new THREE.PointLight(0x5f9e99, 1.3, 40);
   tealLight.position.set(-9, -3, 8);
-  const coralLight = new THREE.PointLight(0xef8e7f, 0.7, 40);
-  coralLight.position.set(9, -7, 5);
-  scene.add(hemi, key, tealLight, coralLight);
+  const navyLight = new THREE.PointLight(0x2d4a94, 0.6, 40);
+  navyLight.position.set(9, -7, 5);
+  scene.add(hemi, key, tealLight, navyLight);
 
   const THEMES = {
-    dark:  { fog: 0x121212, block: 0x1c1e1e, edge: 0x5f9e99, coral: 0xef8e7f, edgeA: 0.6,  linkA: 0.3 },
-    light: { fog: 0xf5f3ef, block: 0xe9e6e1, edge: 0x3b7a75, coral: 0xd06a5a, edgeA: 0.55, linkA: 0.35 }
+    // hl = the highlight block (navy); light theme is black and white
+    dark:  { fog: 0x121212, block: 0x1c1e1e, edge: 0x5f9e99, hl: 0x5c7cc9, glow: 0x1e3a8a, edgeA: 0.6,  linkA: 0.3 },
+    light: { fog: 0xfafafa, block: 0xededed, edge: 0x1a1a1a, hl: 0x1e3a8a, glow: 0x1e3a8a, edgeA: 0.5,  linkA: 0.28 }
   };
   let theme = THEMES.dark;
   scene.fog = new THREE.Fog(0x121212, 15, 31);
@@ -209,8 +210,8 @@
     scene.fog.color.setHex(theme.fog);
     const light = theme === THEMES.light;
     hemi.intensity = light ? 0.95 : 0.55;
-    tealLight.intensity = light ? 0.35 : 1.3;      // coloured fills read as candy on light blocks
-    coralLight.intensity = light ? 0.12 : 0.7;
+    tealLight.intensity = light ? 0 : 1.3;         // light theme: neutral, black-and-white lighting
+    navyLight.intensity = light ? 0 : 0.6;
     STAGES.forEach(function (st) { if (st.lineObj) st.lineObj.material.color.setHex(theme.edge); });
   }
   applyTheme();
@@ -308,10 +309,10 @@
       bl.mesh.rotation.set(lerp(fa.r[0], fb.r[0], lt), lerp(fa.r[1], fb.r[1], lt), lerp(fa.r[2], fb.r[2], lt));
       bl.mesh.scale.set(lerp(fa.s[0], fb.s[0], lt), lerp(fa.s[1], fb.s[1], lt), lerp(fa.s[2], fb.s[2], lt));
       const h = lerp(fa.h, fb.h, lt);
-      bl.lineMat.color.setHex(theme.edge).lerp(tmpColor.setHex(theme.coral), h);
+      bl.lineMat.color.setHex(theme.edge).lerp(tmpColor.setHex(theme.hl), h);
       bl.lineMat.opacity = lerp(theme.edgeA, 0.95, h);
-      bl.mat.color.setHex(theme.block);
-      bl.mat.emissive.setHex(theme.coral).multiplyScalar(h * (theme === THEMES.light ? 0.12 : 0.22));
+      bl.mat.color.setHex(theme.block).lerp(tmpColor.setHex(theme.glow), h * (theme === THEMES.light ? 0.9 : 0.7));
+      bl.mat.emissive.setHex(theme.glow).multiplyScalar(h * (theme === THEMES.light ? 0.12 : 0.18));
     }
 
     // links for formations on screen
@@ -1264,10 +1265,11 @@ const books = [
 // ===== RENDER PROJECTS =====
 const projectsGrid = document.getElementById('projects-grid');
 
-// Every project card shares the site palette (muted teal + soft coral), so the
-// per-project colour arguments below are kept only as documentation.
-function makeProjectTheme() {
-  return '--project-accent:#5F9E99; --project-accent-2:#EF8E7F; --project-soft:rgba(95, 158, 153, 0.12); --project-glow:rgba(239, 142, 127, 0.14);';
+// Each project card has its own colour pair for its animated scene.
+// Orange / amber / yellow were swapped for sky and deep blues so the cards
+// sit with the site's teal palette.
+function makeProjectTheme(accent, accent2, soft, glow) {
+  return `--project-accent:${accent}; --project-accent-2:${accent2}; --project-soft:${soft}; --project-glow:${glow};`;
 }
 
 const projectMotionProfiles = {
@@ -1296,7 +1298,7 @@ const projectMotionProfiles = {
     label: 'Protocol Flow',
     sceneClass: 'scene-mcp',
     htmlSummary: 'Packets travelling across protocol tracks — visualises how an MCP server lets AI agents call real-world tools (here, expense management).',
-    style: makeProjectTheme('#06b6d4', '#f59e0b', 'rgba(6, 182, 212, 0.14)', 'rgba(245, 158, 11, 0.2)'),
+    style: makeProjectTheme('#06b6d4', '#2563eb', 'rgba(6, 182, 212, 0.14)', 'rgba(37, 99, 235, 0.2)'),
     visual: '<span class="v-track track-1"></span><span class="v-track track-2"></span><span class="v-track track-3"></span><span class="v-packet packet-a"></span><span class="v-packet packet-b"></span><span class="v-packet packet-c"></span>'
   },
   'GenAI-langchain': {
@@ -1310,7 +1312,7 @@ const projectMotionProfiles = {
     label: 'Inheritance Orbit',
     sceneClass: 'scene-inheritance',
     htmlSummary: 'A core asset surrounded by orbiting heirs — depicts trustless inheritance where crypto flows to designated wallets without intermediaries.',
-    style: makeProjectTheme('#f59e0b', '#f97316', 'rgba(245, 158, 11, 0.14)', 'rgba(249, 115, 22, 0.22)'),
+    style: makeProjectTheme('#38bdf8', '#2563eb', 'rgba(56, 189, 248, 0.14)', 'rgba(37, 99, 235, 0.22)'),
     visual: '<span class="v-orbit orbit-1"></span><span class="v-orbit orbit-2"></span><span class="v-core"></span><span class="v-heir heir-1"></span><span class="v-heir heir-2"></span><span class="v-heir heir-3"></span>'
   },
   'ZK-KGVerify': {
@@ -1352,7 +1354,7 @@ const projectMotionProfiles = {
     label: 'Cinema Beam',
     sceneClass: 'scene-movie',
     htmlSummary: 'A reel projecting a beam onto a ticket — content-based recommender that maps your taste to titles with similar features.',
-    style: makeProjectTheme('#f97316', '#facc15', 'rgba(249, 115, 22, 0.14)', 'rgba(250, 204, 21, 0.18)'),
+    style: makeProjectTheme('#2563eb', '#7dd3fc', 'rgba(37, 99, 235, 0.14)', 'rgba(125, 211, 252, 0.18)'),
     visual: '<span class="v-reel"></span><span class="v-beam"></span><span class="v-ticket"></span>'
   },
   'ImageDataProjects': {
@@ -1529,7 +1531,7 @@ function renderLaptopResource(r) {
             <!-- top bar with traffic lights -->
             <rect x="30" y="22" width="140" height="8" fill="#1F1F1F"/>
             <circle cx="36" cy="26" r="1.4" fill="#ff6b6b"/>
-            <circle cx="41" cy="26" r="1.4" fill="#EF8E7F"/>
+            <circle cx="41" cy="26" r="1.4" fill="#8AA2E2"/>
             <circle cx="46" cy="26" r="1.4" fill="#5F9E99"/>
             <!-- URL bar -->
             <rect x="56" y="23" width="108" height="6" rx="3" fill="rgba(127, 178, 173,0.18)" stroke="rgba(127, 178, 173,0.35)" stroke-width="0.4"/>
@@ -1541,7 +1543,7 @@ function renderLaptopResource(r) {
             <!-- Faux content lines -->
             <rect x="40" y="80" width="60" height="2" rx="1" fill="rgba(95, 158, 153,0.7)"/>
             <rect x="40" y="86" width="90" height="2" rx="1" fill="rgba(143, 190, 186,0.5)"/>
-            <rect x="40" y="92" width="74" height="2" rx="1" fill="rgba(239, 142, 127,0.5)"/>
+            <rect x="40" y="92" width="74" height="2" rx="1" fill="rgba(138, 162, 226, 0.5)"/>
             <rect x="40" y="98" width="50" height="2" rx="1" fill="rgba(143, 190, 186,0.4)"/>
             <!-- Cursor blink -->
             <rect class="lr-cursor" x="92" y="98" width="3" height="2" fill="#5F9E99"/>
@@ -1550,7 +1552,7 @@ function renderLaptopResource(r) {
             <linearGradient id="lr-mono-grad" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stop-color="#CFE4E1"/>
               <stop offset="60%" stop-color="#5F9E99"/>
-              <stop offset="100%" stop-color="#EF8E7F"/>
+              <stop offset="100%" stop-color="#8AA2E2"/>
             </linearGradient>
           </defs>
         </svg>
@@ -1798,8 +1800,8 @@ function playBookOpen(book, theme, done) {
         <!-- spine shadow strip -->
         <rect x="252" y="60" width="8" height="240" fill="rgba(0,0,0,0.35)"/>
         <!-- bookmark ribbon -->
-        <rect x="232" y="60" width="10" height="55" fill="rgba(239, 142, 127, 0.85)"/>
-        <polygon points="232,115 242,115 237,123" fill="rgba(239, 142, 127, 0.85)"/>
+        <rect x="232" y="60" width="10" height="55" fill="rgba(46, 74, 156, 0.9)"/>
+        <polygon points="232,115 242,115 237,123" fill="rgba(46, 74, 156, 0.9)"/>
         <!-- title block on cover -->
         <text class="bk-cover-monogram" x="170" y="135" text-anchor="middle"
               font-family="'JetBrains Mono', monospace" font-size="26" font-weight="800" fill="rgba(255,248,230,0.96)">${book.initials}</text>
@@ -1880,6 +1882,3 @@ function initMemoryGallery() {
   try { fn(); } catch (err) { console.error('init failed:', fn.name, err); }
 });
 document.getElementById('year').textContent = new Date().getFullYear();
-// Hero stat stays in sync with the projects list
-const statProjects = document.getElementById('stat-projects');
-if (statProjects) statProjects.textContent = projects.length;
